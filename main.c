@@ -3,14 +3,48 @@
 #include "graph.h"
 
 void addProfile(Graph network) {
-        
+
+    static int id = 0;
+    User* new = readUser();
+    addVertex(network,id);
+    setVertexData(network,id,new);
+
+    printf("Sucessfully created your profile\n");
+
 }
 
-void addFriend() {}
-void findFriend() {}
-void findMatch() {}
-void listProfile() {}
-void myProfile() {}
+void addFriend(Graph network) {
+
+    char me[50],other[50];
+    printf("Qual o seu nome\n");
+    scanf("%[\n\r]",me);
+    //TODO: verificar se existe
+
+    printf("Qual o seu nome\n");
+    scanf("%[\n\r]",other);
+    //TODO: verificar se existe
+
+    //TODO: colocar a medida do peso
+
+    
+
+}
+
+void findFriend(Graph network) {
+
+}
+
+void findMatch(Graph network) {
+
+}
+
+void listProfile(Graph network) {
+
+}
+
+void myProfile(Graph network) {
+
+}
 
 void printLogo() {
 
