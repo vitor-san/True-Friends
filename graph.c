@@ -394,7 +394,7 @@ void printGraph(Graph g, void (*printFunction)(void *), int verbose) {
 
     if (printFunction == NULL) {
         fprintf(stderr, "Invalid function passed as argument.");
-        return NULL;  // error
+        return;  // error
     }
 
     EdgeNode *aux;
