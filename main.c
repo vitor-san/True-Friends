@@ -2,7 +2,10 @@
 #include <stdlib.h>
 #include "graph.h"
 
-void addProfile() {}
+void addProfile(Graph network) {
+        
+}
+
 void addFriend() {}
 void findFriend() {}
 void findMatch() {}
@@ -56,6 +59,7 @@ void printMenu() {
 int main(int argc, char const *argv[]) {
 
     int op = -1;
+    Graph network = newGraph(100,0,freeNetwork());
 
     printLogo();
 
@@ -65,7 +69,7 @@ int main(int argc, char const *argv[]) {
 
         switch(op) {
             case 1 :
-                addProfile();
+                addProfile(network);
                 break;
             case 2 :
                 addFriend();
