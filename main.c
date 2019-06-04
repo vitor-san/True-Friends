@@ -2,9 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "graph.h"
-<<<<<<< HEAD
 #include "user.h"
-=======
 
 typedef struct user_{
 	char name[50];
@@ -70,8 +68,8 @@ void read_item(FILE *fp, User **list_users, int pos, int type){
 			break;
 		case 9:
 <<<<<<< HEAD
-			add_interest(list_users[pos], input);		
-			break;		
+			add_interest(list_users[pos], input);
+			break;
 =======
 			strcpy(list_users[pos].interest, input);
 			break;
@@ -88,7 +86,7 @@ void read_users(FILE *fp, User **list_users, int number_users){
 		read_item(fp, list_users, i, 1);
 		fseek(fp, 7, SEEK_CUR);
 		fscanf(fp, "%d", &age);
-		add_age(list_users[i], age);	
+		add_age(list_users[i], age);
 		fseek(fp, 7, SEEK_CUR);
 		read_item(fp, list_users, i, 2);
 		fseek(fp, 14, SEEK_CUR);
@@ -234,7 +232,7 @@ int main(int argc, char const *argv[]) {
 	User *list_users = (User*) malloc(sizeof(User)*(number_users+1));
 >>>>>>> 87ac34be1029fbbb129e2a53d045772f0958fcc1
 	read_users(fp, list_users, number_users);
-	
+
     int op = -1;
     Graph network = newGraph(100,0,removeUser());
 
@@ -271,10 +269,10 @@ int main(int argc, char const *argv[]) {
         system("clear");
     }
 <<<<<<< HEAD
-    
+
     for(int i=0; i<number_users; i++) remove_user(list_users[i]);
     free(list_users);
-	fclose(fp);	
+	fclose(fp);
 =======
 
 	free(list_users);
