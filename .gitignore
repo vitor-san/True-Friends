@@ -18,6 +18,7 @@
 
 # Libraries
 *.lib
+*.so
 *.a
 *.la
 *.lo
@@ -50,3 +51,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Zip files
+*.zip
