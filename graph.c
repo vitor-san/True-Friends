@@ -35,6 +35,11 @@ Graph newGraph(int n, int d, void (*freeFunction)(void *)) {
         return NULL;  // error
     }
 
+    if (freeFunction == NULL) {
+        fprintf(stderr, "Invalid function passed as argument.");
+        return NULL;  // error
+    }
+
     g->list = malloc(n*sizeof(VertexNode)); // instantializes the list (no edges included)
     if (g->list == NULL) {
         fprintf(stderr, "Could not allocate memory to adjacency list.");
@@ -264,6 +269,29 @@ int removeVertex(Graph g, int x) {     // removes the vertex x, if it is there
     return 1;   // success
 }
 
+int searchVertex(Graph g, int (*compareFunction)(void *, void *), void *data) {
+    if (g == NULL || g->list == NULL) {
+        fprintf(stderr, "Invalid graph.");
+        return 0;
+    }
+
+    if (compareFunction == NULL) {
+        fprintf(stderr, "Invalid function passed as argument.");
+        return 0;
+    }
+
+    if (data == NULL) {
+        fprintf(stderr, "Invalid data passed as argument.");
+        return 0;
+    }
+
+    //search begins
+    for (int i = 0; i < g->numVt; i++) {
+        if (compareFunction(g->list[i].data, data) == 0) return 1;
+    }
+    return 0;
+}
+
 int numVertices(Graph g) {
     if (g == NULL) {
         fprintf(stderr, "Graph doesn't exist.");
@@ -362,6 +390,11 @@ void printGraph(Graph g, void (*printFunction)(void *), int verbose) {
     if (g == NULL || g->list == NULL) {
         fprintf(stderr, "Invalid graph.");
         return;
+    }
+
+    if (printFunction == NULL) {
+        fprintf(stderr, "Invalid function passed as argument.");
+        return NULL;  // error
     }
 
     EdgeNode *aux;

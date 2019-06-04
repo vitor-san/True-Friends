@@ -91,6 +91,17 @@ int addVertex(Graph g, int x);
 int removeVertex(Graph g, int x);
 
 /*
+    Searches for a vertex with the same data as the one passed by parameter.
+    If such vertex exists, the function will return 1. Otherwise, it will return 0;
+    @Parameters:
+        Graph g -> graph to be considered.
+        printFunction -> function that teaches this one how to compare the data that you stored in the graph's vertices. It should receive two (void *) as inputs and return (int).
+        void *data -> data that you're looking for.
+If any error occured, the function will return 0.
+*/
+int searchVertex(Graph g, int (*compareFunction)(void *, void *), void *data);
+
+/*
   Returns the number of vertices in the graph.
   @Parameters:
       Graph g -> graph to be considered.
