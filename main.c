@@ -6,19 +6,18 @@
 typedef struct user_{
 	char name[50];
 	int age;
-	char gender[5];
+	char gender[10];
 	char current_city[50];
 	char origin_city[50];
-	char footbal_club[50];		
-	char type_musical[50];
-	char type_movie[50];
+	char football_club[50];
+	char musical_genre[50];
+	char movie_genre[50];
 	char favorite_food[50];
-	char interest[50];
-	
-}User;
+	char interest[10];
+} User;
 
-int count_peoples(FILE *fp){
-	int cnt=0, flag=1;	
+int count_people(FILE *fp){
+	int cnt=0, flag=1;
 	char c;
 	while((c = fgetc(fp)) != EOF){
 		if(cnt%10 == 0 && flag){flag=0; continue;}
@@ -35,10 +34,10 @@ void read_item(FILE *fp, User *list_users, int pos, int type){
 	while(c != '\n'){
 		input[i]=c;
 		i++;
-		fread(&c, sizeof(char), 1, fp);	
+		fread(&c, sizeof(char), 1, fp);
 	}
 	input[i] ='\0';
-	
+
 	switch(type){
 		case 1:
 			strcpy(list_users[pos].name, input);
@@ -65,8 +64,8 @@ void read_item(FILE *fp, User *list_users, int pos, int type){
 			strcpy(list_users[pos].favorite_food, input);
 			break;
 		case 9:
-			strcpy(list_users[pos].interest, input);		
-			break;		
+			strcpy(list_users[pos].interest, input);
+			break;
 	}
 
 }
@@ -88,7 +87,7 @@ void read_users(FILE *fp, User *list_users, int number_users){
 		fseek(fp, 6, SEEK_CUR);
 		read_item(fp, list_users, i, 5);
 		fseek(fp, 16, SEEK_CUR);
-		read_item(fp, list_users, i, 6);		
+		read_item(fp, list_users, i, 6);
 		fseek(fp, 14, SEEK_CUR);
 		read_item(fp, list_users, i, 7);
 		fseek(fp, 17, SEEK_CUR);
@@ -124,7 +123,7 @@ void addFriend(Graph network) {
 
     char me[50],other[50];
     User* meU,otherU;
-    printf("what is your name\n");
+    printf("What is your name?\n");
     scanf("%[\n\r]",me);
     meU->name = me;
 
@@ -133,7 +132,7 @@ void addFriend(Graph network) {
         return;
     }
 
-    printf("What is the name of the person that you're searching\n");
+    printf("What is the name of the person that you're searching?\n");
     scanf("%[\n\r]",other);
     otherU->name = other;
 
@@ -208,13 +207,13 @@ void printMenu() {
 
 int main(int argc, char const *argv[]) {
 	FILE *fp = fopen("pessoas.txt", "r");
-	int number_users = count_peoples(fp);	
+	int number_users = count_peoples(fp);
 	rewind(fp);
-	User *list_users = (User*) malloc(sizeof(User)*(number_users+1)); 
+	User *list_users = (User*) malloc(sizeof(User)*(number_users+1));
 	read_users(fp, list_users, number_users);
     int op = -1;
     Graph network = newGraph(100,0,freeNetwork());
-	
+
     printLogo();
 
     while(op != 0) {
@@ -248,8 +247,28 @@ int main(int argc, char const *argv[]) {
         system("clear");
 
     }
-    
+
 	free(list_users);
-	fclose(fp);	
+	fclose(fp);
     return 0;
+}
+
+double ageSimilarity(int age1, int age2) {
+    if (age1 < age2) return age1/(double)age2;
+    return age2/(double)age1;
+}
+
+double similarity(User a, User b) {
+    double const weight[] = {0.2, 0.2, 0.1, 0.1, 0.2, 0.1, 0.1};
+    double sim = 0;
+
+    sim += weight[0]*ageSimilarity(a.age, b.age);
+    if (strcmp(a.current_city, b.current_city) == 0) sim += weight[1];
+    if (strcmp(a.origin_city, b.origin_city) == 0) sim += weight[2];
+    if (strcmp(a.football_club, b.football_club) == 0) sim += weight[3];
+    if (strcmp(a.musical_genre, b.musical_genre) == 0) sim += weight[4];
+    if (strcmp(a.movie_genre, b.movie_genre) == 0) sim += weight[5];
+    if (strcmp(a.favorite_food, b.favorite_food) == 0) sim += weight[6];
+
+    return sim;
 }
