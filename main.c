@@ -119,7 +119,6 @@ int compareName(void* a, void* b) {
 
 }
 
-
 void addFriend(Graph network) {
 
     char me[50],other[50];
@@ -143,6 +142,14 @@ void addFriend(Graph network) {
     }
 
     //TODO: colocar a medida do peso
+    other = strcat(other,".txt");
+    //that file contains the name of the person
+    //who sent a friend invite to the file name person
+    FILE* fp = fopen(other,"r+");
+    //write the name of the person who sent the invite
+    fprintf(fp,"%s\n",me);
+
+    fclose(fp);
 
 }
 
@@ -214,7 +221,7 @@ int main(int argc, char const *argv[]) {
 	User *list_users = (User*) malloc(sizeof(User)*(number_users+1));
 	read_users(fp, list_users, number_users);
     int op = -1;
-    Graph network = newGraph(100,0,freeNetwork());
+    Graph network = newGraph(100,0,removeUser());
 
     printLogo();
 
