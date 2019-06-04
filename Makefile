@@ -1,5 +1,5 @@
 all:
-	gcc -o true_friends main.c graph.c -g
+	gcc -o true_friends main.c graph.c user.c -g
 run:
 	./true_friends
 zip:
