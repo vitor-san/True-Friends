@@ -9,16 +9,16 @@ typedef struct user_{
 	char gender[5];
 	char current_city[50];
 	char origin_city[50];
-	char footbal_club[50];		
+	char footbal_club[50];
 	char type_musical[50];
 	char type_movie[50];
 	char favorite_food[50];
 	char interest[50];
-	
+
 }User;
 
 int count_peoples(FILE *fp){
-	int cnt=0, flag=1;	
+	int cnt=0, flag=1;
 	char c;
 	while((c = fgetc(fp)) != EOF){
 		if(cnt%10 == 0 && flag){flag=0; continue;}
@@ -35,10 +35,10 @@ void read_item(FILE *fp, User *list_users, int pos, int type){
 	while(c != '\n'){
 		input[i]=c;
 		i++;
-		fread(&c, sizeof(char), 1, fp);	
+		fread(&c, sizeof(char), 1, fp);
 	}
 	input[i] ='\0';
-	
+
 	switch(type){
 		case 1:
 			strcpy(list_users[pos].name, input);
@@ -65,8 +65,8 @@ void read_item(FILE *fp, User *list_users, int pos, int type){
 			strcpy(list_users[pos].favorite_food, input);
 			break;
 		case 9:
-			strcpy(list_users[pos].interest, input);		
-			break;		
+			strcpy(list_users[pos].interest, input);
+			break;
 	}
 
 }
@@ -88,7 +88,7 @@ void read_users(FILE *fp, User *list_users, int number_users){
 		fseek(fp, 6, SEEK_CUR);
 		read_item(fp, list_users, i, 5);
 		fseek(fp, 16, SEEK_CUR);
-		read_item(fp, list_users, i, 6);		
+		read_item(fp, list_users, i, 6);
 		fseek(fp, 14, SEEK_CUR);
 		read_item(fp, list_users, i, 7);
 		fseek(fp, 17, SEEK_CUR);
@@ -102,7 +102,7 @@ void read_users(FILE *fp, User *list_users, int number_users){
 void addProfile(Graph network) {
 
     static int id = 0;
-    User* new = readUser();
+    User* new;
     addVertex(network,id);
     setVertexData(network,id,new);
 
@@ -128,7 +128,7 @@ void addFriend(Graph network) {
     scanf("%[\n\r]",me);
     meU->name = me;
 
-    if(!searchVertex(netork,compareName,meU)) {
+    if(!searchVertex(network,compareName,meU)) {
         printf("The user does not exist");
         return;
     }
@@ -137,7 +137,7 @@ void addFriend(Graph network) {
     scanf("%[\n\r]",other);
     otherU->name = other;
 
-    if(!searchVertex(netork,compareName,otherU)) {
+    if(!searchVertex(network,compareName,otherU)) {
         printf("The user does not exist");
         return;
     }
@@ -207,14 +207,15 @@ void printMenu() {
 }
 
 int main(int argc, char const *argv[]) {
+
 	FILE *fp = fopen("pessoas.txt", "r");
-	int number_users = count_peoples(fp);	
+	int number_users = count_peoples(fp);
 	rewind(fp);
-	User *list_users = (User*) malloc(sizeof(User)*(number_users+1)); 
+	User *list_users = (User*) malloc(sizeof(User)*(number_users+1));
 	read_users(fp, list_users, number_users);
     int op = -1;
     Graph network = newGraph(100,0,freeNetwork());
-	
+
     printLogo();
 
     while(op != 0) {
@@ -222,23 +223,25 @@ int main(int argc, char const *argv[]) {
         scanf("%d", &op);
 
         switch(op) {
+            case 0 :
+                continue;
             case 1 :
                 addProfile(network);
                 break;
             case 2 :
-                addFriend();
+                addFriend(network);
                 break;
             case 3 :
-                findFriend();
+                findFriend(network);
                 break;
             case 4 :
-                findMatch();
+                findMatch(network);
                 break;
             case 5 :
-                listProfile();
+                listProfile(network);
                 break;
             case 6 :
-                myProfile();
+                myProfile(network);
                 break;
             default :
                 printf("Not an option");
@@ -248,8 +251,8 @@ int main(int argc, char const *argv[]) {
         system("clear");
 
     }
-    
+
 	free(list_users);
-	fclose(fp);	
+	fclose(fp);
     return 0;
 }
