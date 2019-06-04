@@ -13,6 +13,11 @@ void addProfile(Graph network) {
 
 }
 
+int compareName() {
+
+}
+
+
 void addFriend(Graph network) {
 
     char me[50],other[50];
@@ -20,13 +25,15 @@ void addFriend(Graph network) {
     scanf("%[\n\r]",me);
     //TODO: verificar se existe
 
+    searchVertex(network,compareName,me);
+
     printf("Qual o seu nome\n");
     scanf("%[\n\r]",other);
     //TODO: verificar se existe
 
     //TODO: colocar a medida do peso
 
-    
+
 
 }
 
