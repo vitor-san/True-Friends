@@ -101,7 +101,7 @@ void read_users(FILE *fp, User *list_users, int number_users){
 void addProfile(Graph network) {
 
     static int id = 0;
-    User* new = readUser();
+    User* new;
     addVertex(network,id);
     setVertexData(network,id,new);
 
@@ -127,7 +127,7 @@ void addFriend(Graph network) {
     scanf("%[\n\r]",me);
     meU->name = me;
 
-    if(!searchVertex(netork,compareName,meU)) {
+    if(!searchVertex(network,compareName,meU)) {
         printf("The user does not exist");
         return;
     }
@@ -136,7 +136,7 @@ void addFriend(Graph network) {
     scanf("%[\n\r]",other);
     otherU->name = other;
 
-    if(!searchVertex(netork,compareName,otherU)) {
+    if(!searchVertex(network,compareName,otherU)) {
         printf("The user does not exist");
         return;
     }
@@ -206,6 +206,7 @@ void printMenu() {
 }
 
 int main(int argc, char const *argv[]) {
+
 	FILE *fp = fopen("pessoas.txt", "r");
 	int number_users = count_peoples(fp);
 	rewind(fp);
@@ -221,23 +222,25 @@ int main(int argc, char const *argv[]) {
         scanf("%d", &op);
 
         switch(op) {
+            case 0 :
+                continue;
             case 1 :
                 addProfile(network);
                 break;
             case 2 :
-                addFriend();
+                addFriend(network);
                 break;
             case 3 :
-                findFriend();
+                findFriend(network);
                 break;
             case 4 :
-                findMatch();
+                findMatch(network);
                 break;
             case 5 :
-                listProfile();
+                listProfile(network);
                 break;
             case 6 :
-                myProfile();
+                myProfile(network);
                 break;
             default :
                 printf("Not an option");
