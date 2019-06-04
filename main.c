@@ -98,22 +98,13 @@ void addProfile(Graph network) {
 
 }
 
-int compareName(void* a, void* b) {
-
-    User* au = (User*) a;
-    User* bu = (User*) b;
-
-    return strcmp(au->name,bu->name);
-
-}
-
 void addFriend(Graph network) {
 
     char me[50],other[50];
-    User* meU,otherU;
+    User *meU,*otherU;
     printf("what is your name\n");
     scanf("%[\n\r]",me);
-    meU->name = me;
+    add_name(meU,me);
 
     if(!searchVertex(network,compareName,meU)) {
         printf("The user does not exist");
@@ -122,7 +113,7 @@ void addFriend(Graph network) {
 
     printf("What is the name of the person that you're searching\n");
     scanf("%[\n\r]",other);
-    otherU->name = other;
+    add_name(otherU,other);
 
     if(!searchVertex(network,compareName,otherU)) {
         printf("The user does not exist");
@@ -130,7 +121,7 @@ void addFriend(Graph network) {
     }
 
     //TODO: colocar a medida do peso
-    other = strcat(other,".txt");
+    strcat(other,".txt");
     //that file contains the name of the person
     //who sent a friend invite to the file name person
     FILE* fp = fopen(other,"r+");
@@ -211,7 +202,7 @@ int main(int argc, char const *argv[]) {
 	read_users(fp, list_users, number_users);
 
     int op = -1;
-    Graph network = newGraph(100,0,removeUser());
+    Graph network = newGraph(100,0,remove_user());
 
     printLogo();
     while(op != 0) {
@@ -245,7 +236,7 @@ int main(int argc, char const *argv[]) {
         }
         system("clear");
     }
-    
+
     for(int i=0; i<number_users; i++) remove_user(list_users[i]);
     free(list_users);
 	fclose(fp);
