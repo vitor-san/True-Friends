@@ -13,7 +13,12 @@ void addProfile(Graph network) {
 
 }
 
-int compareName() {
+int compareName(void* a, void* b) {
+
+    User* au = (User*) a;
+    User* bu = (User*) b;
+
+    return strcmp(au->name,bu->name);
 
 }
 
@@ -21,19 +26,26 @@ int compareName() {
 void addFriend(Graph network) {
 
     char me[50],other[50];
-    printf("Qual o seu nome\n");
+    User* meU,otherU;
+    printf("what is your name\n");
     scanf("%[\n\r]",me);
-    //TODO: verificar se existe
+    meU->name = me;
 
-    searchVertex(network,compareName,me);
+    if(!searchVertex(netork,compareName,meU)) {
+        printf("The user does not exist");
+        return;
+    }
 
-    printf("Qual o seu nome\n");
+    printf("What is the name of the person that you're searching\n");
     scanf("%[\n\r]",other);
-    //TODO: verificar se existe
+    otherU->name = other;
+
+    if(!searchVertex(netork,compareName,otherU)) {
+        printf("The user does not exist");
+        return;
+    }
 
     //TODO: colocar a medida do peso
-
-
 
 }
 
