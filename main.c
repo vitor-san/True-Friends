@@ -2,20 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "graph.h"
-
-typedef struct user_{
-	char name[50];
-	int age;
-	char gender[5];
-	char current_city[50];
-	char origin_city[50];
-	char footbal_club[50];		
-	char type_musical[50];
-	char type_movie[50];
-	char favorite_food[50];
-	char interest[50];
-	
-}User;
+#include "user.h"
 
 int count_peoples(FILE *fp){
 	int cnt=0, flag=1;	
@@ -27,7 +14,7 @@ int count_peoples(FILE *fp){
 	return cnt/10;
 }
 
-void read_item(FILE *fp, User *list_users, int pos, int type){
+void read_item(FILE *fp, User **list_users, int pos, int type){
 	char c;
 	char input[50];
 	int i=0;
@@ -41,44 +28,45 @@ void read_item(FILE *fp, User *list_users, int pos, int type){
 	
 	switch(type){
 		case 1:
-			strcpy(list_users[pos].name, input);
+			add_name(list_users[pos], input);
 			break;
 		case 2:
-			strcpy(list_users[pos].gender, input);
+			add_gender(list_users[pos], input);
 			break;
 		case 3:
-			strcpy(list_users[pos].current_city, input);
+			add_currenty_city(list_users[pos], input);
 			break;
 		case 4:
-			strcpy(list_users[pos].origin_city, input);
+			add_origin_city(list_users[pos], input);
 			break;
 		case 5:
-			strcpy(list_users[pos].footbal_club, input);
+			add_footbal_club(list_users[pos], input);
 			break;
 		case 6:
-			strcpy(list_users[pos].type_musical, input);
+			add_type_musical(list_users[pos], input);
 			break;
 		case 7:
-			strcpy(list_users[pos].type_movie, input);
+			add_type_movie(list_users[pos], input);
 			break;
 		case 8:
-			strcpy(list_users[pos].favorite_food, input);
+			add_favorite_food(list_users[pos], input);
 			break;
 		case 9:
-			strcpy(list_users[pos].interest, input);		
+			add_interest(list_users[pos], input);		
 			break;		
 	}
 
 }
 
-void read_users(FILE *fp, User *list_users, int number_users){
-	int i=0, al=0;
+void read_users(FILE *fp, User **list_users, int number_users){
+	int i=0, age;
 	char c, aux[20];
 	for(int i=0; i<number_users; i++){
 		fseek(fp, 6, SEEK_CUR);
 		read_item(fp, list_users, i, 1);
 		fseek(fp, 7, SEEK_CUR);
-		fscanf(fp, "%d", &list_users[i].age);
+		fscanf(fp, "%d", &age);
+		add_age(list_users[i], age);	
 		fseek(fp, 7, SEEK_CUR);
 		read_item(fp, list_users, i, 2);
 		fseek(fp, 14, SEEK_CUR);
@@ -97,7 +85,6 @@ void read_users(FILE *fp, User *list_users, int number_users){
 		read_item(fp, list_users, i, 9);
 		fseek(fp, 1, SEEK_CUR);
 	}
-}
 
 void addProfile(Graph network) {
 
@@ -113,7 +100,6 @@ void addProfile(Graph network) {
 int compareName() {
 
 }
-
 
 void addFriend(Graph network) {
 
@@ -196,15 +182,15 @@ void printMenu() {
 
 int main(int argc, char const *argv[]) {
 	FILE *fp = fopen("pessoas.txt", "r");
-	int number_users = count_peoples(fp);	
-	rewind(fp);
-	User *list_users = (User*) malloc(sizeof(User)*(number_users+1)); 
+	int number_users = count_peoples(fp);
+	User **list_users = (User**) malloc(sizeof(User*)*number_users);
+	for(int i=0; i<number_users; i++) list_users[i] = new_user():
 	read_users(fp, list_users, number_users);
+	
     int op = -1;
     Graph network = newGraph(100,0,freeNetwork());
 	
     printLogo();
-
     while(op != 0) {
         printMenu();
         scanf("%d", &op);
@@ -232,12 +218,11 @@ int main(int argc, char const *argv[]) {
                 printf("Not an option");
                 break;
         }
-
         system("clear");
-
     }
     
-	free(list_users);
+    for(int i=0; i<number_users; i++) remove_user(list_users[i]);
+    free(list_users);
 	fclose(fp);	
     return 0;
 }
