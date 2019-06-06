@@ -4,12 +4,20 @@
 #include "graph.h"
 #include "user.h"
 
-int count_peoples(FILE *fp){
+#define THRESHOLD 0.6
+
+int count_people(FILE *fp) {
 	int cnt=0, flag=1;
 	char c;
 	while((c = fgetc(fp)) != EOF){
-		if(cnt%10 == 0 && flag){flag=0; continue;}
-		if(c == '\n'){cnt++; flag =1;}
+		if(cnt%10 == 0 && flag) {
+			flag=0;
+			continue;
+		}
+		if(c == '\n'){
+			cnt++;
+			flag =1;
+		}
 	}
 	return cnt/10;
 }
@@ -34,19 +42,19 @@ void read_item(FILE *fp, User **list_users, int pos, int type){
 			add_gender(list_users[pos], input);
 			break;
 		case 3:
-			add_currenty_city(list_users[pos], input);
+			add_current_city(list_users[pos], input);
 			break;
 		case 4:
 			add_origin_city(list_users[pos], input);
 			break;
 		case 5:
-			add_footbal_club(list_users[pos], input);
+			add_football_club(list_users[pos], input);
 			break;
 		case 6:
-			add_type_musical(list_users[pos], input);
+			add_musical_genre(list_users[pos], input);
 			break;
 		case 7:
-			add_type_movie(list_users[pos], input);
+			add_movie_genre(list_users[pos], input);
 			break;
 		case 8:
 			add_favorite_food(list_users[pos], input);
@@ -88,48 +96,86 @@ void read_users(FILE *fp, User **list_users, int number_users){
 }
 
 void addProfile(Graph network) {
-
     static int id = 0;
     User* new;
     addVertex(network,id);
     setVertexData(network,id,new);
 
-    printf("Sucessfully created your profile\n");
+    printf("Your profile has been sucessfully created!\n");
+}
 
+double ageSimilarity(int age1, int age2) {
+	if (age1 < age2) return age1/(double)age2;
+	return age2/(double)age1;
+}
+
+double similarity(User *a, User *b) {
+	double const weight[] = {0.2, 0.2, 0.1, 0.1, 0.2, 0.1, 0.1};
+	double sim = 0;
+
+	sim += weight[0]*ageSimilarity(a->age, b->age);
+	if (strcmp(a->current_city, b->current_city) == 0) sim += weight[1];
+	if (strcmp(a->origin_city, b->origin_city) == 0) sim += weight[2];
+	if (strcmp(a->football_club, b->football_club) == 0) sim += weight[3];
+	if (strcmp(a->musical_genre, b->musical_genre) == 0) sim += weight[4];
+	if (strcmp(a->movie_genre, b->movie_genre) == 0) sim += weight[5];
+	if (strcmp(a->favorite_food, b->favorite_food) == 0) sim += weight[6];
+
+	return sim;
 }
 
 void addFriend(Graph network) {
+	char me[50], other[50];
+    User *myU, *otherU;
 
-    char me[50],other[50];
-    User* meU,otherU;
     printf("What is your name?\n");
     scanf("%[\n\r]",me);
-    add_name(meU,me);
+    add_name(myU,me);
 
-    if(!searchVertex(network,compareName,meU)) {
+	User *found = searchVertex(network,compareName,myU);
+    if(found == NULL) {
         printf("The user does not exist");
         return;
     }
+	memcpy(myU, found, sizeof(User));
 
     printf("What is the name of the person that you're searching?\n");
     scanf("%[\n\r]",other);
     add_name(otherU,other);
 
-    if(!searchVertex(network,compareName,otherU)) {
+	found = searchVertex(network,compareName,otherU);
+    if(found == NULL) {
         printf("The user does not exist");
         return;
     }
+	memcpy(otherU, found, sizeof(User));
 
-    //TODO: colocar a medida do peso
-    strcat(other,".txt");
-    //that file contains the name of the person
-    //who sent a friend invite to the file name person
-    FILE* fp = fopen(other,"r+");
-    //write the name of the person who sent the invite
-    fprintf(fp,"%s\n",me);
+	if (similarity(myU, otherU) < THRESHOLD) {
+		printf("Are you sure? This person might not be a true friend... (Y/N)\n");
+		char opt;
+		scanf(" %c ", &opt);
+		if (opt == 'N') return;
+		else {
+			strcat(other,".txt");
+		    //that file contains the name of the person
+		    //who sent a friend invite to the file name person
+		    FILE* fp = fopen(other,"a");
+		    //write the name of the person who sent the invite
+		    fprintf(fp,"%s\n",me);
 
-    fclose(fp);
+		    fclose(fp);
+		}
+	}
+	else {
+		strcat(other,".txt");
+	    //that file contains the name of the person
+	    //who sent a friend invite to the file name person
+	    FILE* fp = fopen(other,"a");
+	    //write the name of the person who sent the invite
+	    fprintf(fp,"%s\n",me);
 
+	    fclose(fp);
+	}
 }
 
 void findFriend(Graph network) {
@@ -146,6 +192,10 @@ void listProfile(Graph network) {
 
 void myProfile(Graph network) {
 
+}
+
+void removeProfile(void *user) {
+	remove_user((User *)user);
 }
 
 void printLogo() {
@@ -195,14 +245,14 @@ void printMenu() {
 int main(int argc, char const *argv[]) {
 
 	FILE *fp = fopen("pessoas.txt", "r");
-	int number_users = count_peoples(fp);
+	int number_users = count_people(fp);
 	User **list_users = (User**) malloc(sizeof(User*)*number_users);
 	for(int i=0; i<number_users; i++) list_users[i] = new_user();
 	rewind(fp);
 	read_users(fp, list_users, number_users);
 
     int op = -1;
-    Graph network = newGraph(100,0,remove_user());
+    Graph network = newGraph(100,0,removeProfile);
 
     printLogo();
     while(op != 0) {
@@ -242,24 +292,4 @@ int main(int argc, char const *argv[]) {
 	fclose(fp);
 
     return 0;
-}
-
-double ageSimilarity(int age1, int age2) {
-    if (age1 < age2) return age1/(double)age2;
-    return age2/(double)age1;
-}
-
-double similarity(User a, User b) {
-    double const weight[] = {0.2, 0.2, 0.1, 0.1, 0.2, 0.1, 0.1};
-    double sim = 0;
-
-    sim += weight[0]*ageSimilarity(a.age, b.age);
-    if (strcmp(a.current_city, b.current_city) == 0) sim += weight[1];
-    if (strcmp(a.origin_city, b.origin_city) == 0) sim += weight[2];
-    if (strcmp(a.football_club, b.football_club) == 0) sim += weight[3];
-    if (strcmp(a.musical_genre, b.musical_genre) == 0) sim += weight[4];
-    if (strcmp(a.movie_genre, b.movie_genre) == 0) sim += weight[5];
-    if (strcmp(a.favorite_food, b.favorite_food) == 0) sim += weight[6];
-
-    return sim;
 }
