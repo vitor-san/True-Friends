@@ -97,9 +97,11 @@ int removeVertex(Graph g, int x);
         Graph g -> graph to be considered.
         printFunction -> function that teaches this one how to compare the data that you stored in the graph's vertices. It should receive two (void *) as inputs and return (int).
         void *data -> data that you're looking for.
-If any error occured, the function will return 0.
+    @Return:
+        void * -> a pointer to the data of the found vertex
+If any error occured, the function will return NULL.
 */
-int searchVertex(Graph g, int (*compareFunction)(void *, void *), void *data);
+void *searchVertex(Graph g, int (*compareFunction)(void *, void *), void *data);
 
 /*
   Returns the number of vertices in the graph.

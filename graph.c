@@ -217,7 +217,7 @@ int addVertex(Graph g, int x) {     // adds the vertex x, if it is not there
         return 0;  // number of vertex shall be at least zero
     }
 
-    if (x > g->numVt) {
+    if (x >= g->numVt) {
         g->list = realloc(g->list, 2*(g->numVt)*sizeof(VertexNode));
         if (g->list == NULL) {
             fprintf(stderr, "Super error: you have lost the adjacency list you have previously.");
@@ -269,27 +269,27 @@ int removeVertex(Graph g, int x) {     // removes the vertex x, if it is there
     return 1;   // success
 }
 
-int searchVertex(Graph g, int (*compareFunction)(void *, void *), void *data) {
+void *searchVertex(Graph g, int (*compareFunction)(void *, void *), void *data) {
     if (g == NULL || g->list == NULL) {
         fprintf(stderr, "Invalid graph.");
-        return 0;
+        return NULL;
     }
 
     if (compareFunction == NULL) {
         fprintf(stderr, "Invalid function passed as argument.");
-        return 0;
+        return NULL;
     }
 
     if (data == NULL) {
         fprintf(stderr, "Invalid data passed as argument.");
-        return 0;
+        return NULL;
     }
 
     //search begins
     for (int i = 0; i < g->numVt; i++) {
-        if (compareFunction(g->list[i].data, data) == 0) return 1;
+        if (compareFunction(g->list[i].data, data) == 0) return g->list[i].data;
     }
-    return 0;
+    return NULL;
 }
 
 int numVertices(Graph g) {
@@ -421,9 +421,9 @@ void printGraph(Graph g, void (*printFunction)(void *), int verbose) {
             if (verbose) {
                 printf("Vertex %d (", i);
                 printFunction(g->list[i].data);
-                printf(") -> NONE");
+                printf(") -> NONE\n");
             }
-            else printf("%d -> NONE\n", i+1);
+            else printf("%d -> NONE\n", i);
         }
     }
 }

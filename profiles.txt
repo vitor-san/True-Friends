@@ -1,65 +1,65 @@
 Nome: Vitor Santana
 Idade: 18
-Sexo: Masc
+Sexo: Masculino
 Cidade atual: Sao Carlos
 Cidade origem: Sao Paulo
 Time: Corinthians
 Genero musical: Sertanejo
 Genero filme: Comedia
 Comida favorita: Pizza
-Interesse: Mulheres
+Interesse em: Mulheres
 
 Nome: Igor Takeo
 Idade: 20
-Sexo: Masc
+Sexo: Masculino
 Cidade atual: Sao Carlos
 Cidade origem: NAC
 Time: Corinthians
 Genero musical: Sertanejo
 Genero filme: Acao
 Comida favorita: Hamburguer
-Interesse: Mulheres
+Interesse em: Mulheres
 
 Nome: Joao Ramos
 Idade: 18
-Sexo: Masc
+Sexo: Masculino
 Cidade atual: Sao Carlos
 Cidade origem: Fernandopolis
 Time: nenhum
 Genero musical: Musica classica
 Genero filme: Romance
 Comida favorita: Strogonoff
-Interesse: Mulheres
+Interesse em: Mulheres
 
 Nome: Michelle Wingter
 Idade: 28
-Sexo: Fem
+Sexo: Feminino
 Cidade atual: Sao Carlos
 Cidade origem: Sao Paulo
 Time: Palmeiras
 Genero musical: Rock
 Genero filme: Romance
 Comida favorita: Pizza
-Interesse: Homens
+Interesse em: Homens
 
 Nome: Stephany Prado
 Idade: 20
-Sexo: Fem
+Sexo: Feminino
 Cidade atual: Sao Paulo
 Cidade origem: Sao Paulo
 Time: Sao Paulo
 Genero musical: Funk
 Genero filme: Romance
 Comida favorita: Lasanha
-Interesse: Ambos
+Interesse em: Ambos
 
 Nome: Dnajar Silveira
 Idade: 36
-Sexo: Masc
+Sexo: Masculino
 Cidade atual: Juazeiro do Norte
 Cidade origem: Brejo Santo
 Time: Ceara
 Genero musical: Sertanejo
 Genero filme: Comedia
 Comida favorita: Lasanha
-Interesse: Mulheres
+Interesse em: Mulheres

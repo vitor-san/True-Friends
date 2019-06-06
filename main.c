@@ -7,101 +7,104 @@
 #define THRESHOLD 0.6
 
 int count_people(FILE *fp) {
-	int cnt=0, flag=1;
+	int cnt = 0, flag = 1;
 	char c;
-	while((c = fgetc(fp)) != EOF){
-		if(cnt%10 == 0 && flag) {
-			flag=0;
+	while ((c = fgetc(fp)) != EOF) {
+		if (cnt%10 == 0 && flag) {
+			flag = 0;
 			continue;
 		}
-		if(c == '\n'){
+		if (c == '\n') {
 			cnt++;
-			flag =1;
+			flag = 1;
 		}
 	}
 	return cnt/10;
 }
 
-void read_item(FILE *fp, User **list_users, int pos, int type){
+void read_item(FILE *fp, User **users_list, int pos, int type) {
 	char c;
 	char input[50];
-	int i=0;
+	int i = 0;
 	fread(&c, sizeof(char), 1, fp);
-	while(c != '\n'){
-		input[i]=c;
+	while(c != '\n') {
+		input[i] = c;
 		i++;
 		fread(&c, sizeof(char), 1, fp);
 	}
-	input[i] ='\0';
+	input[i] = '\0';
 
-	switch(type){
+	switch(type) {
 		case 1:
-			add_name(list_users[pos], input);
+			setName(users_list[pos], input);
 			break;
 		case 2:
-			add_gender(list_users[pos], input);
+			setGender(users_list[pos], input);
 			break;
 		case 3:
-			add_current_city(list_users[pos], input);
+			setCurrentCity(users_list[pos], input);
 			break;
 		case 4:
-			add_origin_city(list_users[pos], input);
+			setOriginCity(users_list[pos], input);
 			break;
 		case 5:
-			add_football_club(list_users[pos], input);
+			setFootballClub(users_list[pos], input);
 			break;
 		case 6:
-			add_musical_genre(list_users[pos], input);
+			setMusicalGenre(users_list[pos], input);
 			break;
 		case 7:
-			add_movie_genre(list_users[pos], input);
+			setMovieGenre(users_list[pos], input);
 			break;
 		case 8:
-			add_favorite_food(list_users[pos], input);
+			setFavoriteFood(users_list[pos], input);
 			break;
 		case 9:
-			add_interest(list_users[pos], input);
+			setInterest(users_list[pos], input);
 			break;
 	}
-
 }
 
-void read_users(FILE *fp, User **list_users, int number_users){
-	int i=0, age;
-	char c, aux[20];
-	for(int i=0; i<number_users; i++){
+void read_users(FILE *fp, User **users_list, int number_users) {
+	int i = 0, age;
+	for(int i = 0; i < number_users; i++){
 		fseek(fp, 6, SEEK_CUR);
-		read_item(fp, list_users, i, 1);
+		read_item(fp, users_list, i, 1);
 		fseek(fp, 7, SEEK_CUR);
 		fscanf(fp, "%d", &age);
-		add_age(list_users[i], age);
+		setAge(users_list[i], age);
 		fseek(fp, 7, SEEK_CUR);
-		read_item(fp, list_users, i, 2);
+		read_item(fp, users_list, i, 2);
 		fseek(fp, 14, SEEK_CUR);
-		read_item(fp, list_users, i, 3);
+		read_item(fp, users_list, i, 3);
 		fseek(fp, 15, SEEK_CUR);
-		read_item(fp, list_users, i, 4);
+		read_item(fp, users_list, i, 4);
 		fseek(fp, 6, SEEK_CUR);
-		read_item(fp, list_users, i, 5);
+		read_item(fp, users_list, i, 5);
 		fseek(fp, 16, SEEK_CUR);
-		read_item(fp, list_users, i, 6);
+		read_item(fp, users_list, i, 6);
 		fseek(fp, 14, SEEK_CUR);
-		read_item(fp, list_users, i, 7);
+		read_item(fp, users_list, i, 7);
 		fseek(fp, 17, SEEK_CUR);
-		read_item(fp, list_users, i, 8);
-		fseek(fp, 11, SEEK_CUR);
-		read_item(fp, list_users, i, 9);
+		read_item(fp, users_list, i, 8);
+		fseek(fp, 14, SEEK_CUR);
+		read_item(fp, users_list, i, 9);
 		fseek(fp, 1, SEEK_CUR);
 	}
 }
 
-void addProfile(Graph network) {
-    static int id = 0;
-    User* new;
-    addVertex(network,id);
-    setVertexData(network,id,new);
+void inputError() {
+	fprintf(stderr, "Incorrect input! Finishing session...\n");
+	exit(1);
+}
 
-    printf("Your profile has been sucessfully created!\n");
+//FINALIZADA
+void addProfile(Graph network, User *u) {
+    static int id = 0;
+    addVertex(network, id);
+    setVertexData(network, id, u);
+	id++;
+	printf("Id %d\n", id);
 }
 
 double ageSimilarity(int age1, int age2) {
@@ -113,16 +116,20 @@ double similarity(User *a, User *b) {
 	double const weight[] = {0.2, 0.2, 0.1, 0.1, 0.2, 0.1, 0.1};
 	double sim = 0;
 
-	sim += weight[0]*ageSimilarity(a->age, b->age);
-	if (strcmp(a->current_city, b->current_city) == 0) sim += weight[1];
-	if (strcmp(a->origin_city, b->origin_city) == 0) sim += weight[2];
-	if (strcmp(a->football_club, b->football_club) == 0) sim += weight[3];
-	if (strcmp(a->musical_genre, b->musical_genre) == 0) sim += weight[4];
-	if (strcmp(a->movie_genre, b->movie_genre) == 0) sim += weight[5];
-	if (strcmp(a->favorite_food, b->favorite_food) == 0) sim += weight[6];
+	sim += weight[0]*ageSimilarity(getAge(a), getAge(b));
+	if (strcmp(getCurrentCity(a), getCurrentCity(b)) == 0) sim += weight[1];
+	if (strcmp(getOriginCity(a), getOriginCity(b)) == 0) sim += weight[2];
+	if (strcmp(getFootballClub(a), getFootballClub(b)) == 0) sim += weight[3];
+	if (strcmp(getMusicalGenre(a), getMusicalGenre(b)) == 0) sim += weight[4];
+	if (strcmp(getMovieGenre(a), getMovieGenre(b)) == 0) sim += weight[5];
+	if (strcmp(getFavoriteFood(a), getFavoriteFood(b)) == 0) sim += weight[6];
 
 	return sim;
 }
+
+
+
+
 
 void addFriend(Graph network) {
 	char me[50], other[50];
@@ -130,30 +137,30 @@ void addFriend(Graph network) {
 
     printf("What is your name?\n");
     scanf("%[\n\r]",me);
-    add_name(myU,me);
+    setName(myU,me);
 
 	User *found = searchVertex(network,compareName,myU);
-    if(found == NULL) {
+    if (found == NULL) {
         printf("The user does not exist");
         return;
     }
-	memcpy(myU, found, sizeof(User));
+	memcpy(myU, found, getUserSize(myU));
 
     printf("What is the name of the person that you're searching?\n");
-    scanf("%[\n\r]",other);
-    add_name(otherU,other);
+    scanf("%[\n\r]", other);
+    setName(otherU, other);
 
 	found = searchVertex(network,compareName,otherU);
-    if(found == NULL) {
+    if (found == NULL) {
         printf("The user does not exist");
         return;
     }
-	memcpy(otherU, found, sizeof(User));
+	memcpy(otherU, found, getUserSize(otherU));
 
 	if (similarity(myU, otherU) < THRESHOLD) {
 		printf("Are you sure? This person might not be a true friend... (Y/N)\n");
 		char opt;
-		scanf(" %c ", &opt);
+		scanf("%c", &opt);
 		if (opt == 'N') return;
 		else {
 			strcat(other,".txt");
@@ -185,7 +192,7 @@ void findFriend(Graph network) {
 
 	printf("What is your name?\n");
     scanf("%[\n\r]",me);
-	add_name(meU,me);
+	setName(meU,me);
 
 	if(!searchVertex(network,compareName,meU)) {
         printf("The user does not exist");
@@ -195,7 +202,7 @@ void findFriend(Graph network) {
 	int numUsers = numVertices(network);
 
 	for (int i = 0; i < numUsers; i++) {
-		iterator = network->list[i];
+		//iterator = network->list[i];
 		//TODO: calcular a semelhanca
 	}
 
@@ -217,10 +224,10 @@ void myProfile(Graph network) {
 	User *meU;
 
 	printf("What is your name?\n");
-    scanf("%[\n\r]",me);
-	add_name(meU,me);
+    scanf("%[\n\r]", me);
+	setName(meU, me);
 
-	if(!searchVertex(network,compareName,meU)) {
+	if(!searchVertex(network, compareName, meU)) {
         printf("The user does not exist");
         return;
     }
@@ -231,7 +238,11 @@ void myProfile(Graph network) {
 }
 
 void removeProfile(void *user) {
-	remove_user((User *)user);
+	removeUser((User *)user);
+}
+
+void printProfile(void *user) {
+	printUser((User *)user);
 }
 
 void printLogo() {
@@ -262,35 +273,68 @@ void printLogo() {
 
 }
 
+void finishSession() {
+	printf("Finishing session...\n");
+	exit(0);
+}
+
+void welcomeUser() {
+	printf("\n\t=========================== Welcome to TrueFriends.com! ===========================\n");
+	printf("\t\t\t\tDo you already have an account? (Y/N)\n");
+
+	char ans;
+	scanf("%c ", &ans);
+
+	if (ans == 'Y') {
+		printf("What's your name?\n");
+		char name[51];
+		fgets(name, 51, stdin);
+		if (name[strlen(name)-1] == '\n') name[strlen(name)-1] = '\0';
+		puts(name);
+	}
+	else if (ans == 'N') {
+		printf("\nDo you want to create one?\n");
+		scanf("%c ", &ans);
+
+		if (ans == 'Y') {
+			printf("Your profile has been sucessfully created!\n");
+
+		}
+		else if (ans == 'N') finishSession();
+		else inputError();
+	}
+	else inputError();
+}
 
 void printMenu() {
 
-    printf("---------------------\n");
     printf("Choose an option (type the number)\n");
-    printf("[1] add a new profile\n");
-    printf("[2] add a friend\n");
-    printf("[3] find a posible friend\n");
-    printf("[4] find the perfect match\n");
-    printf("[5] list all the profiles\n");
-    printf("[6] see my profile\n");
-    printf("[0] Exit\n");
-    printf("---------------------\n");
+	printf("\t[1] see my profile\n");
+	printf("\t[2] add a friend\n");
+	printf("\t[3] find a possible friend\n");
+	printf("\t[4] find the perfect match\n");
+    printf("\t[5] list all profiles\n");
+    printf("\t[0] Exit\n\n");
 
 }
 
 int main(int argc, char const *argv[]) {
 
-	FILE *fp = fopen("pessoas.txt", "r");
+	FILE *fp = fopen("profiles.txt", "r+");
 	int number_users = count_people(fp);
-	User **list_users = (User**) malloc(sizeof(User*)*number_users);
-	for(int i=0; i<number_users; i++) list_users[i] = new_user();
+	User **users_list = (User**) malloc(sizeof(User*)*number_users);
+	for(int i = 0; i < number_users; i++) users_list[i] = newUser();
 	rewind(fp);
-	read_users(fp, list_users, number_users);
+	read_users(fp, users_list, number_users);
 
     int op = -1;
-    Graph network = newGraph(100,0,removeProfile);
+    Graph network = newGraph(1, 0, removeProfile);
+	for (int i = 0; i < number_users; i++) addProfile(network, users_list[i]);
+	printGraph(network, printProfile, 1);
 
     printLogo();
+	welcomeUser();
+
     while(op != 0) {
         printMenu();
         scanf("%d", &op);
@@ -298,9 +342,6 @@ int main(int argc, char const *argv[]) {
         switch(op) {
             case 0 :
                 continue;
-            case 1 :
-                addProfile(network);
-                break;
             case 2 :
                 addFriend(network);
                 break;
@@ -323,8 +364,8 @@ int main(int argc, char const *argv[]) {
         system("clear");
     }
 
-    for(int i=0; i<number_users; i++) remove_user(list_users[i]);
-    free(list_users);
+    for(int i = 0; i < number_users; i++) removeUser(users_list[i]);
+    free(users_list);
 	fclose(fp);
 
     return 0;

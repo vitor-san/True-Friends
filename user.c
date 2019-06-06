@@ -6,60 +6,114 @@
 struct user_{
 	char name[50];
 	int age;
-	char gender[5];
-	char current_city[50];
-	char origin_city[50];
-	char footbal_club[50];
-	char type_musical[50];
-	char type_movie[50];
-	char favorite_food[50];
-	char interest[50];
-
+	char gender[10];
+	char currentCity[50];
+	char originCity[50];
+	char footballClub[50];
+	char musicalGenre[50];	//maybe a list
+	char movieGenre[50];	//maybe a list
+	char favoriteFood[50];
+	char interest[10];
 };
 
-void add_name(User *u, char *name){
+void setName(User *u, char *name){
 	strcpy(u->name, name);
 }
-void add_age(User *u, int age){
+char *getName(User *u) {
+	return u->name;
+}
+
+void setAge(User *u, int age){
 	u->age = age;
 }
-void add_gender(User *u, char *gender){
+int getAge(User *u) {
+	return u->age;
+}
+
+void setGender(User *u, char *gender){
 	strcpy(u->gender, gender);
 }
-void add_currenty_city(User *u, char *current_city){
-	strcpy(u->current_city, current_city);
+char *getGender(User *u) {
+	return u->gender;
 }
-void add_origin_city(User *u, char *origin_city){
-	strcpy(u->origin_city, origin_city);
+
+void setCurrentCity(User *u, char *currentCity){
+	strcpy(u->currentCity, currentCity);
 }
-void add_footbal_club(User *u, char *footbal_club){
-	strcpy(u->footbal_club, footbal_club);
+char *getCurrentCity(User *u) {
+	return u->currentCity;
 }
-void add_type_musical(User *u, char *type_musical){
-	strcpy(u->gender, type_musical);
+
+void setOriginCity(User *u, char *originCity){
+	strcpy(u->originCity, originCity);
 }
-void add_type_movie(User *u, char *type_movie){
-	strcpy(u->type_movie, type_movie);
+char *getOriginCity(User *u) {
+	return u->originCity;
 }
-void add_favorite_food(User *u, char *favorite_food){
-	strcpy(u->favorite_food,favorite_food);
+
+void setFootballClub(User *u, char *footballClub){
+	strcpy(u->footballClub, footballClub);
 }
-void add_interest(User *u, char *interest){
+char *getFootballClub(User *u) {
+	return u->footballClub;
+}
+
+void setMusicalGenre(User *u, char *musicalGenre){
+	strcpy(u->musicalGenre, musicalGenre);
+}
+char *getMusicalGenre(User *u) {
+	return u->musicalGenre;
+}
+
+void setMovieGenre(User *u, char *movieGenre){
+	strcpy(u->movieGenre, movieGenre);
+}
+char *getMovieGenre(User *u) {
+	return u->movieGenre;
+}
+
+void setFavoriteFood(User *u, char *favoriteFood){
+	strcpy(u->favoriteFood, favoriteFood);
+}
+char *getFavoriteFood(User *u) {
+	return u->favoriteFood;
+}
+
+void setInterest(User *u, char *interest){
 	strcpy(u->interest, interest);
 }
-User *new_user(){
+char *getInterest(User *u) {
+	return u->interest;
+}
+
+User *newUser(){
 	User *n = (User*) malloc(sizeof(User));
 	return n;
 }
 
-void remove_user(User *u){
+void removeUser(User *u){
 	free(u);
 }
 
-int compareName(void* a, void* b) {
+void printUser(User *u) {
+	printf("User name: %s\n", u->name);
+	printf("Age: %d\n", u->age);
+	printf("Gender: %s\n", u->gender);
+	printf("Current City: %s\n", u->currentCity);
+	printf("Origin City: %s\n", u->originCity);
+	printf("Football Club: %s\n", u->footballClub);
+	printf("Musical Genre: %s\n", u->musicalGenre);
+	printf("Movie Genre: %s\n", u->movieGenre);
+	printf("Favorite Food: %s\n", u->favoriteFood);
+	printf("Interested in: %s\n", u->interest);
+}
 
+int compareName(void* a, void* b) {
 	User* au = (User*) a;
     User* bu = (User*) b;
-
     return strcmp(au->name,bu->name);
+}
+
+int getUserSize(User *u) {
+	return sizeof(*u);
 }

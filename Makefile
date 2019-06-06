@@ -1,6 +1,8 @@
 all:
-	gcc -o true_friends main.c graph.c user.c -g
+	gcc -o true_friends main.c user.c graph.c -g
 run:
 	./true_friends
+debug:
+	gdb true_friends
 zip:
-	zip trab_grafos.zip main.c graph.h graph.c Makefile
+	zip trab_grafos.zip main.c user.h user.c graph.h graph.c Makefile
