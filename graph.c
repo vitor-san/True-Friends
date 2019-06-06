@@ -26,30 +26,30 @@ struct graph {
 Graph newGraph(int n, int d, void (*freeFunction)(void *)) {
     Graph g = malloc(sizeof(GRAPH));  // creates the graph
     if (g == NULL) {
-        fprintf(stderr, "Could not allocate memory to graph struct.");
+        fprintf(stderr, "Could not allocate memory to graph struct.\n");
         return NULL; // error
     }
 
     if (n <= 0) {
-        fprintf(stderr, "Number of vertices should be a natural number.");
+        fprintf(stderr, "Number of vertices should be a natural number.\n");
         return NULL;  // error
     }
 
     if (freeFunction == NULL) {
-        fprintf(stderr, "Invalid function passed as argument.");
+        fprintf(stderr, "Invalid function passed as argument.\n");
         return NULL;  // error
     }
 
     g->list = malloc(n*sizeof(VertexNode)); // instantializes the list (no edges included)
     if (g->list == NULL) {
-        fprintf(stderr, "Could not allocate memory to adjacency list.");
+        fprintf(stderr, "Could not allocate memory to adjacency list.\n");
         return NULL; // error
     }
 
     for (int i = 0; i < n; i++) {   // initializes all the begs and ends with NULL
         g->list[i].beg = NULL;
         g->list[i].end = NULL;
-        g->list[i].data = 0;
+        g->list[i].data = NULL;
         g->list[i].numConnec = 0;
     }
 
@@ -64,12 +64,12 @@ Graph newGraph(int n, int d, void (*freeFunction)(void *)) {
 
 int isAdjacent(Graph g, int x, int y) {
     if (g == NULL || g->list == NULL) {
-        fprintf(stderr, "Invalid graph.");
+        fprintf(stderr, "Invalid graph.\n");
         return 0;  // error
     }
 
     if (x < 0 || x >= g->numVt || y < 0 || y >= g->numVt) {
-        fprintf(stderr, "Invalid vertex number.");
+        fprintf(stderr, "Invalid vertex number.\n");
         return 0; // error
     }
 
@@ -86,17 +86,17 @@ int isAdjacent(Graph g, int x, int y) {
 // creates x -> y
 int addEdge(Graph g, int x, int y) {
     if (g == NULL || g->list == NULL) {
-        fprintf(stderr, "Invalid graph.");
+        fprintf(stderr, "Invalid graph.\n");
         return 0;
     }
 
     if (x < 0 || x >= g->numVt || y < 0 || y >= g->numVt) {
-        fprintf(stderr, "Invalid vertex number.");
+        fprintf(stderr, "Invalid vertex number.\n");
         return 0;
     }
 
     if (isAdjacent(g, x, y)) {
-        fprintf(stderr, "Edge (%d, %d) already exists.", x, y);
+        fprintf(stderr, "Edge (%d, %d) already exists.\n", x, y);
         return 0;
     }
 
@@ -128,12 +128,12 @@ int addEdge(Graph g, int x, int y) {
 // removes x -> y
 int removeEdge(Graph g, int x, int y) {
     if (g == NULL || g->list == NULL) {
-        fprintf(stderr, "Invalid graph.");
+        fprintf(stderr, "Invalid graph.\n");
         return 0;
     }
 
     if (x < 0 || x >= g->numVt || y < 0 || y >= g->numVt) {
-        fprintf(stderr, "Invalid vertex number.");
+        fprintf(stderr, "Invalid vertex number.\n");
         return 0;
     }
 
@@ -180,19 +180,19 @@ int removeEdge(Graph g, int x, int y) {
 /* REMEMBER TO FREE() THE ARRAY RETURNED BY THIS FUNCTION!!! */
 int *neighbors(Graph g, int x) {
     if (g == NULL || g->list == NULL) {
-        fprintf(stderr, "Invalid graph.");
+        fprintf(stderr, "Invalid graph.\n");
         return NULL;
     }
 
     if (x < 0 || x >= g->numVt) {
-        fprintf(stderr, "Invalid vertex number.");
+        fprintf(stderr, "Invalid vertex number.\n");
         return NULL;
     }
 
     int connections = g->list[x].numConnec;
     int *neigh = malloc((connections+1)*sizeof(int));   // allocates space for all the neighbors + a '0' that indicates the end of the list
     if (neigh == NULL) {
-        fprintf(stderr, "Could not allocate memory to neighbors array.");
+        fprintf(stderr, "Could not allocate memory to neighbors array.\n");
         return NULL;
     }
 
@@ -208,31 +208,32 @@ int *neighbors(Graph g, int x) {
 
 int addVertex(Graph g, int x) {     // adds the vertex x, if it is not there
     if (g == NULL || g->list == NULL) {
-        fprintf(stderr, "Invalid graph.");
+        fprintf(stderr, "Invalid graph.\n");
         return 0;
     }
 
     if (x < 0) {
-        fprintf(stderr, "Invalid vertex number.");
+        fprintf(stderr, "Invalid vertex number.\n");
         return 0;  // number of vertex shall be at least zero
     }
 
     if (x >= g->numVt) {
         g->list = realloc(g->list, 2*(g->numVt)*sizeof(VertexNode));
         if (g->list == NULL) {
-            fprintf(stderr, "Super error: you have lost the adjacency list you have previously.");
+            fprintf(stderr, "Super error: you have lost the adjacency list you have previously.\n");
             return -1;   // super error: you lost the graph you had previously (probably will never happen)
         }
 
-        g->list[x].data = 0;
+        g->list[x].data = NULL;
         g->list[x].beg = NULL;
         g->list[x].end = NULL;
+        g->list[x].numConnec = 0;
         g->numVt++;
 
         return 1;   // success
     }
     else {
-        if (g->list[x].beg != NULL || g->list[x].data != 0) return 0;
+        if (g->list[x].beg != NULL || g->list[x].data != NULL) return 0;
         else {
             g->numVt++;
             return 1;
@@ -243,12 +244,12 @@ int addVertex(Graph g, int x) {     // adds the vertex x, if it is not there
 
 int removeVertex(Graph g, int x) {     // removes the vertex x, if it is there
     if (g == NULL || g->list == NULL) {
-        fprintf(stderr, "Invalid graph.");
+        fprintf(stderr, "Invalid graph.\n");
         return 0;
     }
 
     if (x < 0 || x >= g->numVt) {
-        fprintf(stderr, "Invalid vertex number.");
+        fprintf(stderr, "Invalid vertex number.\n");
         return 0;  // you shall remove a vertex that already exists
     }
 
@@ -271,17 +272,17 @@ int removeVertex(Graph g, int x) {     // removes the vertex x, if it is there
 
 void *searchVertex(Graph g, int (*compareFunction)(void *, void *), void *data) {
     if (g == NULL || g->list == NULL) {
-        fprintf(stderr, "Invalid graph.");
+        fprintf(stderr, "Invalid graph.\n");
         return NULL;
     }
 
     if (compareFunction == NULL) {
-        fprintf(stderr, "Invalid function passed as argument.");
+        fprintf(stderr, "Invalid function passed as argument.\n");
         return NULL;
     }
 
     if (data == NULL) {
-        fprintf(stderr, "Invalid data passed as argument.");
+        fprintf(stderr, "Invalid data passed as argument.\n");
         return NULL;
     }
 
@@ -294,7 +295,7 @@ void *searchVertex(Graph g, int (*compareFunction)(void *, void *), void *data) 
 
 int numVertices(Graph g) {
     if (g == NULL) {
-        fprintf(stderr, "Graph doesn't exist.");
+        fprintf(stderr, "Graph doesn't exist.\n");
         return -1;  // error
     }
     return g->numVt;
@@ -302,7 +303,7 @@ int numVertices(Graph g) {
 
 int numEdges(Graph g) {
     if (g == NULL) {
-        fprintf(stderr, "Graph doesn't exist.");
+        fprintf(stderr, "Graph doesn't exist.\n");
         return -1;  // error
     }
     return g->numEd;
@@ -310,12 +311,12 @@ int numEdges(Graph g) {
 
 double getEdgeCost(Graph g, int x, int y) {
     if (g == NULL || g->list == NULL) {
-        fprintf(stderr, "Invalid graph.");
+        fprintf(stderr, "Invalid graph.\n");
         return -1;  // error
     }
 
     if (x < 0 || x >= g->numVt || y < 0 || y >= g->numVt) {
-        fprintf(stderr, "Invalid vertex number.");
+        fprintf(stderr, "Invalid vertex number.\n");
         return -1;  // error
     }
 
@@ -328,12 +329,12 @@ double getEdgeCost(Graph g, int x, int y) {
 
 void setEdgeCost(Graph g, int x, int y, double val) {
     if (g == NULL || g->list == NULL) {
-        fprintf(stderr, "Invalid graph.");
+        fprintf(stderr, "Invalid graph.\n");
         return;  // error
     }
 
     if (x < 0 || x >= g->numVt || y < 0 || y >= g->numVt) {
-        fprintf(stderr, "Invalid vertex number.");
+        fprintf(stderr, "Invalid vertex number.\n");
         return;  // error
     }
 
@@ -346,12 +347,12 @@ void setEdgeCost(Graph g, int x, int y, double val) {
 
 void *getVertexData(Graph g, int x) {
     if (g == NULL || g->list == NULL) {
-        fprintf(stderr, "Invalid graph.");
+        fprintf(stderr, "Invalid graph.\n");
         return 0;  // error
     }
 
     if (x < 0 || x >= g->numVt) {
-        fprintf(stderr, "Invalid vertex number.");
+        fprintf(stderr, "Invalid vertex number.\n");
         return 0;  // error
     }
 
@@ -360,12 +361,12 @@ void *getVertexData(Graph g, int x) {
 
 int vertexDegree(Graph g, int x) {
     if (g == NULL || g->list == NULL) {
-        fprintf(stderr, "Invalid graph.");
+        fprintf(stderr, "Invalid graph.\n");
         return -1;  // error
     }
 
     if (x < 0 || x >= g->numVt) {
-        fprintf(stderr, "Invalid vertex number.");
+        fprintf(stderr, "Invalid vertex number.\n");
         return -1;  // error
     }
 
@@ -374,12 +375,12 @@ int vertexDegree(Graph g, int x) {
 
 void setVertexData(Graph g, int x, void *val) {
     if (g == NULL || g->list == NULL) {
-        fprintf(stderr, "Invalid graph.");
+        fprintf(stderr, "Invalid graph.\n");
         return;  // error
     }
 
     if (x < 0 || x >= g->numVt) {
-        fprintf(stderr, "Invalid vertex number.");
+        fprintf(stderr, "Invalid vertex number.\n");
         return;  // error
     }
 
@@ -388,12 +389,12 @@ void setVertexData(Graph g, int x, void *val) {
 
 void printGraph(Graph g, void (*printFunction)(void *), int verbose) {
     if (g == NULL || g->list == NULL) {
-        fprintf(stderr, "Invalid graph.");
+        fprintf(stderr, "Invalid graph.\n");
         return;
     }
 
     if (printFunction == NULL) {
-        fprintf(stderr, "Invalid function passed as argument.");
+        fprintf(stderr, "Invalid function passed as argument.\n");
         return;  // error
     }
 
@@ -441,7 +442,7 @@ void printNeighbors(Graph g, int x) {
 
 void freeGraph(Graph g) {
     if (g == NULL) {
-        fprintf(stderr, "Graph doesn't exist.");
+        fprintf(stderr, "Graph doesn't exist.\n");
         return;
     }
     // free list:
