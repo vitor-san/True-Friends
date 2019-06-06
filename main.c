@@ -52,7 +52,7 @@ void read_item(FILE *fp, User **list_users, int pos, int type){
 			add_favorite_food(list_users[pos], input);
 			break;
 		case 9:
-			strcpy(list_users[pos].interest, input);
+			add_interest(list_users[pos], input);
 			break;
 	}
 
@@ -85,6 +85,7 @@ void read_users(FILE *fp, User **list_users, int number_users){
 		read_item(fp, list_users, i, 9);
 		fseek(fp, 1, SEEK_CUR);
 	}
+}
 
 void addProfile(Graph network) {
 
@@ -97,22 +98,13 @@ void addProfile(Graph network) {
 
 }
 
-int compareName(void* a, void* b) {
-
-    User* au = (User*) a;
-    User* bu = (User*) b;
-
-    return strcmp(au->name,bu->name);
-
-}
-
 void addFriend(Graph network) {
 
     char me[50],other[50];
     User* meU,otherU;
     printf("What is your name?\n");
     scanf("%[\n\r]",me);
-    meU->name = me;
+    add_name(meU,me);
 
     if(!searchVertex(network,compareName,meU)) {
         printf("The user does not exist");
@@ -121,7 +113,7 @@ void addFriend(Graph network) {
 
     printf("What is the name of the person that you're searching?\n");
     scanf("%[\n\r]",other);
-    otherU->name = other;
+    add_name(otherU,other);
 
     if(!searchVertex(network,compareName,otherU)) {
         printf("The user does not exist");
@@ -129,6 +121,14 @@ void addFriend(Graph network) {
     }
 
     //TODO: colocar a medida do peso
+    strcat(other,".txt");
+    //that file contains the name of the person
+    //who sent a friend invite to the file name person
+    FILE* fp = fopen(other,"r+");
+    //write the name of the person who sent the invite
+    fprintf(fp,"%s\n",me);
+
+    fclose(fp);
 
 }
 
@@ -196,12 +196,13 @@ int main(int argc, char const *argv[]) {
 
 	FILE *fp = fopen("pessoas.txt", "r");
 	int number_users = count_peoples(fp);
+	User **list_users = (User**) malloc(sizeof(User*)*number_users);
+	for(int i=0; i<number_users; i++) list_users[i] = new_user();
 	rewind(fp);
-	User *list_users = (User*) malloc(sizeof(User)*(number_users+1));
 	read_users(fp, list_users, number_users);
 
     int op = -1;
-    Graph network = newGraph(100,0,freeNetwork());
+    Graph network = newGraph(100,0,remove_user());
 
     printLogo();
     while(op != 0) {
@@ -236,8 +237,10 @@ int main(int argc, char const *argv[]) {
         system("clear");
     }
 
-	free(list_users);
+    for(int i=0; i<number_users; i++) remove_user(list_users[i]);
+    free(list_users);
 	fclose(fp);
+
     return 0;
 }
 

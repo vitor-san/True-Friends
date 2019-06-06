@@ -9,12 +9,12 @@ struct user_{
 	char gender[5];
 	char current_city[50];
 	char origin_city[50];
-	char footbal_club[50];		
+	char footbal_club[50];
 	char type_musical[50];
 	char type_movie[50];
 	char favorite_food[50];
 	char interest[50];
-	
+
 };
 
 void add_name(User *u, char *name){
@@ -56,5 +56,10 @@ void remove_user(User *u){
 	free(u);
 }
 
+int compareName(void* a, void* b) {
 
+	User* au = (User*) a;
+    User* bu = (User*) b;
 
+    return strcmp(au->name,bu->name);
+}

@@ -15,4 +15,5 @@ void add_type_musical(User *u, char *type_musical);
 void add_type_movie(User *u, char *type_movie);
 void add_favorite_food(User *u, char *favorite_food);
 void add_interest(User *u, char *interest);
+int compareName(void* a, void* b);
 #endif
