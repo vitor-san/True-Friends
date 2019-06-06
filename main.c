@@ -134,6 +134,27 @@ void addFriend(Graph network) {
 
 void findFriend(Graph network) {
 
+	char me[50];
+	User *meU,*iterator;
+
+	printf("What is your name?\n");
+    scanf("%[\n\r]",me);
+	add_name(meU,me);
+
+	if(!searchVertex(network,compareName,meU)) {
+        printf("The user does not exist");
+        return;
+    }
+
+	int numUsers = numVertices(network);
+
+	for (int i = 0; i < numUsers; i++) {
+		iterator = network->list[i];
+		//TODO: calcular a semelhanca
+	}
+
+
+
 }
 
 void findMatch(Graph network) {
@@ -141,10 +162,25 @@ void findMatch(Graph network) {
 }
 
 void listProfile(Graph network) {
-
+	//TODO: just use the function printGraph and make the function of printing
 }
 
 void myProfile(Graph network) {
+
+	char me[50];
+	User *meU;
+
+	printf("What is your name?\n");
+    scanf("%[\n\r]",me);
+	add_name(meU,me);
+
+	if(!searchVertex(network,compareName,meU)) {
+        printf("The user does not exist");
+        return;
+    }
+
+	//TODO: listar os invites de amizade
+	//TODO: listar os amigos atuais
 
 }
 
