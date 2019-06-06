@@ -104,7 +104,6 @@ void addProfile(Graph network, User *u) {
     addVertex(network, id);
     setVertexData(network, id, u);
 	id++;
-	printf("Id %d\n", id);
 }
 
 double ageSimilarity(int age1, int age2) {

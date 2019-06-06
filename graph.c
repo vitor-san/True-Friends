@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "graph.h"
 
 typedef struct edgeNode {
@@ -40,17 +41,10 @@ Graph newGraph(int n, int d, void (*freeFunction)(void *)) {
         return NULL;  // error
     }
 
-    g->list = malloc(n*sizeof(VertexNode)); // instantializes the list (no edges included)
+    g->list = calloc(n, sizeof(VertexNode)); // instantializes the list (no edges included)
     if (g->list == NULL) {
         fprintf(stderr, "Could not allocate memory to adjacency list.\n");
         return NULL; // error
-    }
-
-    for (int i = 0; i < n; i++) {   // initializes all the begs and ends with NULL
-        g->list[i].beg = NULL;
-        g->list[i].end = NULL;
-        g->list[i].data = NULL;
-        g->list[i].numConnec = 0;
     }
 
     g->numVt = n;
@@ -60,6 +54,25 @@ Graph newGraph(int n, int d, void (*freeFunction)(void *)) {
     g->freeFunction = freeFunction;
 
     return g;
+}
+
+void freeList(Graph g, int freeData) {
+    EdgeNode *aux;
+    if (g->list != NULL) {
+        for (int i = 0; i < g->numVt; i++) {
+            if (g->list[i].beg != NULL) {
+                aux = g->list[i].beg;
+                while (g->list[i].beg->next != NULL) {
+                    g->list[i].beg = g->list[i].beg->next;
+                    free(aux);
+                    aux = g->list[i].beg;
+                }
+                free(aux);
+            }
+            if (freeData) g->freeFunction(g->list[i].data);
+        }
+        free(g->list);
+    }
 }
 
 int isAdjacent(Graph g, int x, int y) {
@@ -218,26 +231,21 @@ int addVertex(Graph g, int x) {     // adds the vertex x, if it is not there
     }
 
     if (x >= g->numVt) {
-        g->list = realloc(g->list, 2*(g->numVt)*sizeof(VertexNode));
-        if (g->list == NULL) {
-            fprintf(stderr, "Super error: you have lost the adjacency list you have previously.\n");
-            return -1;   // super error: you lost the graph you had previously (probably will never happen)
+        VertexNode *aux = calloc(2*(g->numVt), sizeof(VertexNode));
+        if (aux == NULL) {
+            fprintf(stderr, "Could not expand graph's size.\n");
+            return -1;
         }
+        memcpy(aux, g->list, g->numVt*sizeof(VertexNode));  //makes a copy of the adjacency list
+        freeList(g, 0);    //destroys the old one
+        g->list = aux;  //g->list is going to point to the bigger block of data that was allocated
 
-        g->list[x].data = NULL;
-        g->list[x].beg = NULL;
-        g->list[x].end = NULL;
-        g->list[x].numConnec = 0;
         g->numVt++;
-
         return 1;   // success
     }
     else {
         if (g->list[x].beg != NULL || g->list[x].data != NULL) return 0;
-        else {
-            g->numVt++;
-            return 1;
-        }
+        else return 1;
     }
 
 }
@@ -445,23 +453,6 @@ void freeGraph(Graph g) {
         fprintf(stderr, "Graph doesn't exist.\n");
         return;
     }
-    // free list:
-    EdgeNode *aux;
-    if (g->list != NULL) {
-        for (int i = 0; i < g->numVt; i++) {
-            if (g->list[i].beg != NULL) {
-                aux = g->list[i].beg;
-                while (g->list[i].beg->next != NULL) {
-                    g->list[i].beg = g->list[i].beg->next;
-                    free(aux);
-                    aux = g->list[i].beg;
-                }
-                free(aux);
-            }
-            g->freeFunction(g->list[i].data);
-        }
-        free(g->list);
-    }
-    // free graph:
+    freeList(g, 1);
     free(g);
 }
