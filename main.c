@@ -52,13 +52,8 @@ void read_item(FILE *fp, User **list_users, int pos, int type){
 			add_favorite_food(list_users[pos], input);
 			break;
 		case 9:
-<<<<<<< HEAD
-			add_interest(list_users[pos], input);
-			break;
-=======
 			strcpy(list_users[pos].interest, input);
 			break;
->>>>>>> 87ac34be1029fbbb129e2a53d045772f0958fcc1
 	}
 
 }
@@ -201,13 +196,8 @@ int main(int argc, char const *argv[]) {
 
 	FILE *fp = fopen("pessoas.txt", "r");
 	int number_users = count_peoples(fp);
-<<<<<<< HEAD
-	User **list_users = (User**) malloc(sizeof(User*)*number_users);
-	for(int i=0; i<number_users; i++) list_users[i] = new_user():
-=======
 	rewind(fp);
 	User *list_users = (User*) malloc(sizeof(User)*(number_users+1));
->>>>>>> 87ac34be1029fbbb129e2a53d045772f0958fcc1
 	read_users(fp, list_users, number_users);
 
     int op = -1;
@@ -245,16 +235,9 @@ int main(int argc, char const *argv[]) {
         }
         system("clear");
     }
-<<<<<<< HEAD
-
-    for(int i=0; i<number_users; i++) remove_user(list_users[i]);
-    free(list_users);
-	fclose(fp);
-=======
 
 	free(list_users);
 	fclose(fp);
->>>>>>> 87ac34be1029fbbb129e2a53d045772f0958fcc1
     return 0;
 }
 
