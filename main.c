@@ -164,6 +164,7 @@ void buildNetwork(Graph network) {
 		User *cur = getVertexData(network, i);
 		FILE *userFile = openUserFile(cur);
 
+		printf("Current user: %s\n", getName(cur));
 		if (userFile == NULL) {
 			fprintf(stderr, "Error loading dataset\n");
 			exit(1);
@@ -181,11 +182,11 @@ void buildNetwork(Graph network) {
 					name[k] = '\0';
 					User *friend = searchVertexReturnData(network, compareName, name);
 					int pos = searchVertexReturnPos(network, compareName, name);
-					printf("Id of %s: %d\n", name, pos);
 
 					double sim = similarity(cur, friend);
-					addEdge(network, i, pos);
-					setEdgeCost(network, i, pos, sim);
+					if (addEdge(network, i, pos)) {
+						setEdgeCost(network, i, pos, sim);
+					}
 					k = 0;
 				}
 				else name[k++] = c;
@@ -194,7 +195,7 @@ void buildNetwork(Graph network) {
 		}
 
 		fclose(userFile);
-		printGraph(network, printProfile, 1);
+		printGraph(network, printProfile, 0);
 	}
 }
 
