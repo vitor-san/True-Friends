@@ -108,6 +108,19 @@ void printUser(User *u) {
 	printf("\tInterested in: %s\n", u->interest);
 }
 
+void printUserToFile(User *u, FILE *fp) {
+	fprintf(fp, "Name: %s\n", u->name);
+	fprintf(fp, "Age: %d\n", u->age);
+	fprintf(fp, "Gender: %s\n", u->gender);
+	fprintf(fp, "Current city: %s\n", u->currentCity);
+	fprintf(fp, "Origin city: %s\n", u->originCity);
+	fprintf(fp, "Football club: %s\n", u->footballClub);
+	fprintf(fp, "Musical genre: %s\n", u->musicalGenre);
+	fprintf(fp, "Movie genre: %s\n", u->movieGenre);
+	fprintf(fp, "Favorite food: %s\n", u->favoriteFood);
+	fprintf(fp, "Interested in: %s\n", u->interest);
+}
+
 int compareName(void *a, void *b) {
     return strcmp( ((User *)a)->name, (char *)b );
 }

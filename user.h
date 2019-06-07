@@ -6,6 +6,7 @@ typedef struct user_ User;
 User *newUser();
 void removeUser(User *u);
 void printUser(User *u);
+void printUserToFile(User *u, FILE *fp);
 
 void setName(User *u, char *name);
 char *getName(User *u);

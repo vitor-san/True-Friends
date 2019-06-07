@@ -1,65 +1,65 @@
-	Name: Vitor Santana
-	Age: 18
-	Gender: Male
-	Current city: Sao Carlos
-	Origin city: Sao Paulo
-	Football club: Corinthians
-	Musical genre: Sertanejo
-	Movie genre: Comedia
-	Favorite food: Pizza
-	Interested in: Women
+Name: Vitor Santana
+Age: 18
+Gender: Male
+Current city: Sao Carlos
+Origin city: Sao Paulo
+Football club: Corinthians
+Musical genre: Sertanejo
+Movie genre: Comedia
+Favorite food: Pizza
+Interested in: Women
 
-	Name: Igor Takeo
-	Age: 20
-	Gender: Male
-	Current city: Sao Carlos
-	Origin city: NAC
-	Football club: Corinthians
-	Musical genre: Sertanejo
-	Movie genre: Acao
-	Favorite food: Hamburguer
-	Interested in: Women
+Name: Igor Takeo
+Age: 20
+Gender: Male
+Current city: Sao Carlos
+Origin city: NAC
+Football club: Corinthians
+Musical genre: Sertanejo
+Movie genre: Acao
+Favorite food: Hamburguer
+Interested in: Women
 
-	Name: Joao Ramos
-	Age: 18
-	Gender: Male
-	Current city: Sao Carlos
-	Origin city: Fernandopolis
-	Football club: nenhum
-	Musical genre: Musica classica
-	Movie genre: Romance
-	Favorite food: Strogonoff
-	Interested in: Women
+Name: Joao Ramos
+Age: 18
+Gender: Male
+Current city: Sao Carlos
+Origin city: Fernandopolis
+Football club: Nenhum
+Musical genre: Musica classica
+Movie genre: Romance
+Favorite food: Strogonoff
+Interested in: Women
 
-	Name: Michelle Wingter
-	Age: 28
-	Gender: Female
-	Current city: Sao Carlos
-	Origin city: Sao Paulo
-	Football club: Palmeiras
-	Musical genre: Rock
-	Movie genre: Romance
-	Favorite food: Pizza
-	Interested in: Men
+Name: Michelle Wingter
+Age: 28
+Gender: Female
+Current city: Sao Carlos
+Origin city: Sao Paulo
+Football club: Palmeiras
+Musical genre: Rock
+Movie genre: Romance
+Favorite food: Pizza
+Interested in: Men
 
-	Name: Stephany Prado
-	Age: 20
-	Gender: Female
-	Current city: Sao Paulo
-	Origin city: Sao Paulo
-	Football club: Sao Paulo
-	Musical genre: Funk
-	Movie genre: Romance
-	Favorite food: Lasanha
-	Interested in: Both
+Name: Stephany Prado
+Age: 20
+Gender: Female
+Current city: Sao Paulo
+Origin city: Sao Paulo
+Football club: Sao Paulo
+Musical genre: Funk
+Movie genre: Romance
+Favorite food: Lasanha
+Interested in: Both
 
-	Name: Dnajar Silveira
-	Age: 36
-	Gender: Male
-	Current city: Juazeiro do Norte
-	Origin city: Brejo Santo
-	Football club: Ceara
-	Musical genre: Sertanejo
-	Movie genre: Comedia
-	Favorite food: Lasanha
-	Interested in: Women
+Name: Dnajar Silveira
+Age: 36
+Gender: Male
+Current city: Juazeiro do Norte
+Origin city: Brejo Santo
+Football club: Ceara
+Musical genre: Sertanejo
+Movie genre: Comedia
+Favorite food: Lasanha
+Interested in: Women

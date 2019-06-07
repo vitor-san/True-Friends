@@ -70,26 +70,26 @@ void read_item(FILE *fp, User **users_list, int pos, int type) {
 void read_users(FILE *fp, User **users_list, int number_users) {
 	int i = 0, age;
 	for(int i = 0; i < number_users; i++){
-		fseek(fp, 7, SEEK_CUR);
-		read_item(fp, users_list, i, 1);
 		fseek(fp, 6, SEEK_CUR);
+		read_item(fp, users_list, i, 1);
+		fseek(fp, 5, SEEK_CUR);
 		fscanf(fp, "%d", &age);
 		setAge(users_list[i], age);
-		fseek(fp, 9, SEEK_CUR);
+		fseek(fp, 8, SEEK_CUR);
 		read_item(fp, users_list, i, 2);
-		fseek(fp, 15, SEEK_CUR);
+		fseek(fp, 14, SEEK_CUR);
 		read_item(fp, users_list, i, 3);
-		fseek(fp, 14, SEEK_CUR);
+		fseek(fp, 13, SEEK_CUR);
 		read_item(fp, users_list, i, 4);
-		fseek(fp, 16, SEEK_CUR);
+		fseek(fp, 15, SEEK_CUR);
 		read_item(fp, users_list, i, 5);
-		fseek(fp, 16, SEEK_CUR);
+		fseek(fp, 15, SEEK_CUR);
 		read_item(fp, users_list, i, 6);
-		fseek(fp, 14, SEEK_CUR);
+		fseek(fp, 13, SEEK_CUR);
 		read_item(fp, users_list, i, 7);
-		fseek(fp, 16, SEEK_CUR);
+		fseek(fp, 15, SEEK_CUR);
 		read_item(fp, users_list, i, 8);
-		fseek(fp, 16, SEEK_CUR);
+		fseek(fp, 15, SEEK_CUR);
 		read_item(fp, users_list, i, 9);
 		fseek(fp, 1, SEEK_CUR);
 	}
@@ -411,8 +411,8 @@ User *newProfile() {
 	getchar();	//gets '\n' from stdin
 	setAge(new, intBuffer);
 
-	printf("\n\tChoose your gender\n\t");
-	printf("[1] Male\t[2] Female\n\t");
+	printf("\n\tChoose your gender\n\t\t");
+	printf("[1] Male\t[2] Female\n\t)> ");
 	scanf("%d", &intBuffer);
 	getchar();	//gets '\n' from stdin
 	if (intBuffer == 1) setGender(new, "Male");
@@ -449,8 +449,8 @@ User *newProfile() {
 	if (strBuffer[strlen(strBuffer)-1] == '\n') strBuffer[strlen(strBuffer)-1] = '\0';
 	setFavoriteFood(new, strBuffer);
 
-	printf("\n\tChoose a relashionship interest\n\t");
-	printf("[1] Men    [2] Women    [3] Both    [4] None\n\t");
+	printf("\n\tChoose a relashionship interest\n\t\t");
+	printf("[1] Men    [2] Women    [3] Both    [4] None\n\t)> ");
 	scanf("%d", &intBuffer);
 	getchar();	//gets '\n' from stdin
 	if (intBuffer == 1) setInterest(new, "Men");
@@ -462,8 +462,7 @@ User *newProfile() {
 	return new;
 }
 
-//TODO: Gravar o novo usuario em disco
-void welcomeUser(Graph network) {
+void welcomeUser(Graph network, FILE *profiles) {
 	printf("\n\t=========================== Welcome to TrueFriends.com! ===========================\n");
 	printf("\t\t\t\tDo you already have an account? (Y/N)\n\t)> ");
 
@@ -491,10 +490,9 @@ void welcomeUser(Graph network) {
 			loggedIn = newProfile();
 			myId = addProfile(network, loggedIn);
 			createUserFile(loggedIn);
-			//freopen("profiles.txt", "a", stdout);
-			//printf("\n");
-			printUser(loggedIn);
-			//fclose(stdout);
+			freopen(NULL, "a", profiles);	//reopens file for append operations
+			fprintf(profiles, "\n");
+			printUserToFile(loggedIn, profiles);
 			printf("\n\tYour profile has been sucessfully created!");
 		}
 		else if (ans == 'N') finishSession();
@@ -534,7 +532,7 @@ int main(int argc, char const *argv[]) {
 
 	system("clear");
     printLogo();
-	welcomeUser(network);
+	welcomeUser(network, fp);
 
     while (op != 0) {
         printMenu();
