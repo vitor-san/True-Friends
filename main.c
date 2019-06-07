@@ -70,26 +70,26 @@ void read_item(FILE *fp, User **users_list, int pos, int type) {
 void read_users(FILE *fp, User **users_list, int number_users) {
 	int i = 0, age;
 	for(int i = 0; i < number_users; i++){
-		fseek(fp, 6, SEEK_CUR);
-		read_item(fp, users_list, i, 1);
 		fseek(fp, 7, SEEK_CUR);
+		read_item(fp, users_list, i, 1);
+		fseek(fp, 6, SEEK_CUR);
 		fscanf(fp, "%d", &age);
 		setAge(users_list[i], age);
-		fseek(fp, 7, SEEK_CUR);
+		fseek(fp, 9, SEEK_CUR);
 		read_item(fp, users_list, i, 2);
-		fseek(fp, 14, SEEK_CUR);
-		read_item(fp, users_list, i, 3);
 		fseek(fp, 15, SEEK_CUR);
+		read_item(fp, users_list, i, 3);
+		fseek(fp, 14, SEEK_CUR);
 		read_item(fp, users_list, i, 4);
-		fseek(fp, 6, SEEK_CUR);
+		fseek(fp, 16, SEEK_CUR);
 		read_item(fp, users_list, i, 5);
 		fseek(fp, 16, SEEK_CUR);
 		read_item(fp, users_list, i, 6);
 		fseek(fp, 14, SEEK_CUR);
 		read_item(fp, users_list, i, 7);
-		fseek(fp, 17, SEEK_CUR);
+		fseek(fp, 16, SEEK_CUR);
 		read_item(fp, users_list, i, 8);
-		fseek(fp, 14, SEEK_CUR);
+		fseek(fp, 16, SEEK_CUR);
 		read_item(fp, users_list, i, 9);
 		fseek(fp, 1, SEEK_CUR);
 	}
@@ -114,6 +114,17 @@ char *noWhitespace(char *string) {
 		i++;
 	}
 	return returnString;
+}
+
+void createUserFile(User *u) {
+	char *noSpace = noWhitespace(getName(u));
+	char path[100] = "./Profiles/";
+	strcat(noSpace, ".txt");
+	strcat(path, noSpace);
+	free(noSpace);
+
+ 	FILE *fp = fopen(path, "w");
+	fclose(fp);
 }
 
 FILE *openUserFile(User *u) {
@@ -451,6 +462,7 @@ User *newProfile() {
 	return new;
 }
 
+//TODO: Gravar o novo usuario em disco
 void welcomeUser(Graph network) {
 	printf("\n\t=========================== Welcome to TrueFriends.com! ===========================\n");
 	printf("\t\t\t\tDo you already have an account? (Y/N)\n\t)> ");
@@ -478,7 +490,11 @@ void welcomeUser(Graph network) {
 		if (ans == 'Y') {
 			loggedIn = newProfile();
 			myId = addProfile(network, loggedIn);
+			createUserFile(loggedIn);
+			//freopen("profiles.txt", "a", stdout);
+			//printf("\n");
 			printUser(loggedIn);
+			//fclose(stdout);
 			printf("\n\tYour profile has been sucessfully created!");
 		}
 		else if (ans == 'N') finishSession();
