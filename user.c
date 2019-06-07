@@ -108,10 +108,8 @@ void printUser(User *u) {
 	printf("Interested in: %s\n", u->interest);
 }
 
-int compareName(void* a, void* b) {
-	User* au = (User*) a;
-    User* bu = (User*) b;
-    return strcmp(au->name,bu->name);
+int compareName(void *a, void *b) {
+    return strcmp( ((User *)a)->name, (char *)b );
 }
 
 int getUserSize(User *u) {

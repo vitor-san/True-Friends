@@ -92,16 +92,29 @@ int removeVertex(Graph g, int x);
 
 /*
     Searches for a vertex with the same data as the one passed by parameter.
-    If such vertex exists, the function will return 1. Otherwise, it will return 0;
+    If such vertex exists, the function will return it's data. Otherwise, it will return NULL;
     @Parameters:
         Graph g -> graph to be considered.
-        printFunction -> function that teaches this one how to compare the data that you stored in the graph's vertices. It should receive two (void *) as inputs and return (int).
+        compareFunction -> function that teaches this one how to compare the data that you stored in the graph's vertices. It should receive two (void *) as inputs and return (int).
         void *data -> data that you're looking for.
     @Return:
-        void * -> a pointer to the data of the found vertex
+        void * -> a pointer to the data of the found vertex.
 If any error occured, the function will return NULL.
 */
-void *searchVertex(Graph g, int (*compareFunction)(void *, void *), void *data);
+void *searchVertexReturnData(Graph g, int (*compareFunction)(void *, void *), void *data);
+
+/*
+    Searches for a vertex with the same data as the one passed by parameter.
+    If such vertex exists, the function will return it's position on the graph's adjacency list. Otherwise, it will return -1;
+    @Parameters:
+        Graph g -> graph to be considered.
+        compareFunction -> function that teaches this one how to compare the data that you stored in the graph's vertices. It should receive two (void *) as inputs and return (int).
+        void *data -> data that you're looking for.
+    @Return:
+        int -> position of the vertex on the graph's adjacency list.
+If any error occured, the function will return -1.
+*/
+int searchVertexReturnPos(Graph g, int (*compareFunction)(void *, void *), void *data);
 
 /*
   Returns the number of vertices in the graph.

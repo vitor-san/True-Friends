@@ -278,7 +278,7 @@ int removeVertex(Graph g, int x) {     // removes the vertex x, if it is there
     return 1;   // success
 }
 
-void *searchVertex(Graph g, int (*compareFunction)(void *, void *), void *data) {
+void *searchVertexReturnData(Graph g, int (*compareFunction)(void *, void *), void *data) {
     if (g == NULL || g->list == NULL) {
         fprintf(stderr, "Invalid graph.\n");
         return NULL;
@@ -299,6 +299,29 @@ void *searchVertex(Graph g, int (*compareFunction)(void *, void *), void *data) 
         if (compareFunction(g->list[i].data, data) == 0) return g->list[i].data;
     }
     return NULL;
+}
+
+int searchVertexReturnPos(Graph g, int (*compareFunction)(void *, void *), void *data) {
+    if (g == NULL || g->list == NULL) {
+        fprintf(stderr, "Invalid graph.\n");
+        return -1;
+    }
+
+    if (compareFunction == NULL) {
+        fprintf(stderr, "Invalid function passed as argument.\n");
+        return -1;
+    }
+
+    if (data == NULL) {
+        fprintf(stderr, "Invalid data passed as argument.\n");
+        return -1;
+    }
+
+    //search begins
+    for (int i = 0; i < g->numVt; i++) {
+        if (compareFunction(g->list[i].data, data) == 0) return i;
+    }
+    return -1;
 }
 
 int numVertices(Graph g) {
@@ -350,7 +373,11 @@ void setEdgeCost(Graph g, int x, int y, double val) {
     while (aux != NULL && aux->vertex != y) aux = aux->next;
 
     if (aux == NULL) return;   // error: there is no edge from x to y
-    else aux->weight = val;
+    else {
+        if (aux->weight == val) return;
+        aux->weight = val;
+    }
+    if (!g->isDigraph) setEdgeCost(g, y, x, val);
 }
 
 void *getVertexData(Graph g, int x) {

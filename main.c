@@ -28,8 +28,7 @@ void read_item(FILE *fp, User **users_list, int pos, int type) {
 	int i = 0;
 	fread(&c, sizeof(char), 1, fp);
 	while(c != '\n') {
-		input[i] = c;
-		i++;
+		input[i++] = c;
 		fread(&c, sizeof(char), 1, fp);
 	}
 	input[i] = '\0';
@@ -98,12 +97,45 @@ void inputError() {
 	exit(1);
 }
 
-//FINALIZADA
+//This function DO NOT modify the original string
+char *noWhitespace(char *string) {
+	char *returnString = calloc(strlen(string), sizeof(char));
+	char copy[51];
+	strcpy(copy, string);
+
+	int i = 0, j = 0;
+	while (copy[i] != '\0') {
+		if (copy[i] != ' ') {
+			returnString[j++] = copy[i];
+		}
+		i++;
+	}
+	return returnString;
+}
+
+FILE *openUserFile(User *u) {
+	char *noSpace = noWhitespace(getName(u));
+	char path[100] = "./Profiles/";
+	strcat(noSpace, ".txt");
+	strcat(path, noSpace);
+	free(noSpace);
+
+ 	return fopen(path, "r+");
+}
+
 void addProfile(Graph network, User *u) {
     static int id = 0;
     addVertex(network, id);
     setVertexData(network, id, u);
 	id++;
+}
+
+void removeProfile(void *user) {
+	removeUser((User *)user);
+}
+
+void printProfile(void *user) {
+	printUser((User *)user);
 }
 
 double ageSimilarity(int age1, int age2) {
@@ -126,7 +158,45 @@ double similarity(User *a, User *b) {
 	return sim;
 }
 
+//This function will build all the edges (friendships) of our network.
+void buildNetwork(Graph network) {
+	for (int i = 0; i < numVertices(network); i++) {
+		User *cur = getVertexData(network, i);
+		FILE *userFile = openUserFile(cur);
 
+		if (userFile == NULL) {
+			fprintf(stderr, "Error loading dataset\n");
+			exit(1);
+		}
+
+		char c = fgetc(userFile);
+		if (c == '#') {	//this profile has friends
+			fgetc(userFile);	//ignores the next '\n'
+			int k = 0;
+			char name[50];
+
+			c = fgetc(userFile);
+			while (c != '$' && !feof(userFile)) {
+				if (c == '\n') {
+					name[k] = '\0';
+					User *friend = searchVertexReturnData(network, compareName, name);
+					int pos = searchVertexReturnPos(network, compareName, name);
+					printf("Id of %s: %d\n", name, pos);
+
+					double sim = similarity(cur, friend);
+					addEdge(network, i, pos);
+					setEdgeCost(network, i, pos, sim);
+					k = 0;
+				}
+				else name[k++] = c;
+				c = fgetc(userFile);
+			}
+		}
+
+		fclose(userFile);
+		printGraph(network, printProfile, 1);
+	}
+}
 
 
 
@@ -138,7 +208,7 @@ void addFriend(Graph network) {
     scanf("%[\n\r]",me);
     setName(myU,me);
 
-	User *found = searchVertex(network,compareName,myU);
+	User *found = searchVertexReturnData(network,compareName,myU);
     if (found == NULL) {
         printf("The user does not exist");
         return;
@@ -149,7 +219,7 @@ void addFriend(Graph network) {
     scanf("%[\n\r]", other);
     setName(otherU, other);
 
-	found = searchVertex(network,compareName,otherU);
+	found = searchVertexReturnData(network,compareName,otherU);
     if (found == NULL) {
         printf("The user does not exist");
         return;
@@ -193,7 +263,7 @@ void findFriend(Graph network) {
     scanf("%[\n\r]",me);
 	setName(meU,me);
 
-	if(!searchVertex(network,compareName,meU)) {
+	if(!searchVertexReturnData(network,compareName,meU)) {
         printf("The user does not exist");
         return;
     }
@@ -226,7 +296,7 @@ void myProfile(Graph network) {
     scanf("%[\n\r]", me);
 	setName(meU, me);
 
-	if(!searchVertex(network, compareName, meU)) {
+	if(!searchVertexReturnData(network, compareName, meU)) {
         printf("The user does not exist");
         return;
     }
@@ -236,13 +306,6 @@ void myProfile(Graph network) {
 
 }
 
-void removeProfile(void *user) {
-	removeUser((User *)user);
-}
-
-void printProfile(void *user) {
-	printUser((User *)user);
-}
 
 void printLogo() {
 
@@ -282,7 +345,7 @@ void welcomeUser() {
 	printf("\t\t\t\tDo you already have an account? (Y/N)\n");
 
 	char ans;
-	scanf("%c ", &ans);
+	scanf("%c", &ans);
 
 	if (ans == 'Y') {
 		printf("What's your name?\n");
@@ -293,7 +356,7 @@ void welcomeUser() {
 	}
 	else if (ans == 'N') {
 		printf("\nDo you want to create one?\n");
-		scanf("%c ", &ans);
+		scanf("%c", &ans);
 
 		if (ans == 'Y') {
 			printf("Your profile has been sucessfully created!\n");
@@ -329,7 +392,8 @@ int main(int argc, char const *argv[]) {
     int op = -1;
     Graph network = newGraph(1, 0, removeProfile);
 	for (int i = 0; i < number_users; i++) addProfile(network, users_list[i]);
-	printGraph(network, printProfile, 1);
+	buildNetwork(network);
+	//printGraph(network, printProfile, 1);
 
     printLogo();
 	welcomeUser();
@@ -365,6 +429,7 @@ int main(int argc, char const *argv[]) {
 
     for(int i = 0; i < number_users; i++) removeUser(users_list[i]);
     free(users_list);
+	freeGraph(network);
 	fclose(fp);
 
     return 0;
