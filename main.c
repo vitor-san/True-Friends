@@ -164,7 +164,7 @@ void buildNetwork(Graph network) {
 		User *cur = getVertexData(network, i);
 		FILE *userFile = openUserFile(cur);
 
-		printf("Current user: %s\n", getName(cur));
+		//printf("Current user: %s\n", getName(cur));
 		if (userFile == NULL) {
 			fprintf(stderr, "Error loading dataset\n");
 			exit(1);
@@ -195,7 +195,7 @@ void buildNetwork(Graph network) {
 		}
 
 		fclose(userFile);
-		printGraph(network, printProfile, 0);
+		//printGraph(network, printProfile, 0);
 	}
 }
 
@@ -343,24 +343,24 @@ void finishSession() {
 
 void welcomeUser() {
 	printf("\n\t=========================== Welcome to TrueFriends.com! ===========================\n");
-	printf("\t\t\t\tDo you already have an account? (Y/N)\n");
+	printf("\t\t\t\tDo you already have an account? (Y/N)\n\t");
 
 	char ans;
 	scanf("%c", &ans);
 
 	if (ans == 'Y') {
-		printf("What's your name?\n");
+		printf("\tWhat's your name?\n\t");
 		char name[51];
 		fgets(name, 51, stdin);
 		if (name[strlen(name)-1] == '\n') name[strlen(name)-1] = '\0';
 		puts(name);
 	}
 	else if (ans == 'N') {
-		printf("\nDo you want to create one?\n");
+		printf("\n\tDo you want to create one?\n\t");
 		scanf("%c", &ans);
 
 		if (ans == 'Y') {
-			printf("Your profile has been sucessfully created!\n");
+			printf("\tYour profile has been sucessfully created!\n\t");
 
 		}
 		else if (ans == 'N') finishSession();
@@ -371,13 +371,13 @@ void welcomeUser() {
 
 void printMenu() {
 
-    printf("Choose an option (type the number)\n");
-	printf("\t[1] see my profile\n");
-	printf("\t[2] add a friend\n");
-	printf("\t[3] find a possible friend\n");
-	printf("\t[4] find the perfect match\n");
-    printf("\t[5] list all profiles\n");
-    printf("\t[0] Exit\n\n");
+    printf("\tChoose an option (type the number)\n\t");
+	printf("\t[1] see my profile\n\t");
+	printf("\t[2] add a friend\n\t");
+	printf("\t[3] find a possible friend\n\t");
+	printf("\t[4] find the perfect match\n\t");
+    printf("\t[5] list all profiles\n\t");
+    printf("\t[0] exit\n\n\t");
 
 }
 
@@ -394,8 +394,8 @@ int main(int argc, char const *argv[]) {
     Graph network = newGraph(1, 0, removeProfile);
 	for (int i = 0; i < number_users; i++) addProfile(network, users_list[i]);
 	buildNetwork(network);
-	//printGraph(network, printProfile, 1);
 
+	system("clear");
     printLogo();
 	welcomeUser();
 
@@ -422,7 +422,7 @@ int main(int argc, char const *argv[]) {
                 myProfile(network);
                 break;
             default :
-                printf("Not an option");
+                printf("\tNot an option\n");
                 break;
         }
         system("clear");
