@@ -96,16 +96,16 @@ void removeUser(User *u){
 }
 
 void printUser(User *u) {
-	printf("User name: %s\n", u->name);
-	printf("Age: %d\n", u->age);
-	printf("Gender: %s\n", u->gender);
-	printf("Current City: %s\n", u->currentCity);
-	printf("Origin City: %s\n", u->originCity);
-	printf("Football Club: %s\n", u->footballClub);
-	printf("Musical Genre: %s\n", u->musicalGenre);
-	printf("Movie Genre: %s\n", u->movieGenre);
-	printf("Favorite Food: %s\n", u->favoriteFood);
-	printf("Interested in: %s\n", u->interest);
+	printf("\tName: %s\n", u->name);
+	printf("\tAge: %d\n", u->age);
+	printf("\tGender: %s\n", u->gender);
+	printf("\tCurrent city: %s\n", u->currentCity);
+	printf("\tOrigin city: %s\n", u->originCity);
+	printf("\tFootball club: %s\n", u->footballClub);
+	printf("\tMusical genre: %s\n", u->musicalGenre);
+	printf("\tMovie genre: %s\n", u->movieGenre);
+	printf("\tFavorite food: %s\n", u->favoriteFood);
+	printf("\tInterested in: %s\n", u->interest);
 }
 
 int compareName(void *a, void *b) {

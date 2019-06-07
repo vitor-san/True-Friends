@@ -6,6 +6,9 @@
 
 #define THRESHOLD 0.6
 
+User *loggedIn;
+int myId;
+
 int count_people(FILE *fp) {
 	int cnt = 0, flag = 1;
 	char c;
@@ -93,7 +96,7 @@ void read_users(FILE *fp, User **users_list, int number_users) {
 }
 
 void inputError() {
-	fprintf(stderr, "Incorrect input! Finishing session...\n");
+	fprintf(stderr, "\n\tIncorrect input! Finishing session...\n");
 	exit(1);
 }
 
@@ -123,11 +126,12 @@ FILE *openUserFile(User *u) {
  	return fopen(path, "r+");
 }
 
-void addProfile(Graph network, User *u) {
+int addProfile(Graph network, User *u) {
     static int id = 0;
     addVertex(network, id);
     setVertexData(network, id, u);
 	id++;
+	return id-1;	//the added profile id
 }
 
 void removeProfile(void *user) {
@@ -199,62 +203,139 @@ void buildNetwork(Graph network) {
 	}
 }
 
+void showMyProfile(Graph network) {
+	printf("\n");
+	printUser(loggedIn);
+	printf("\n\t");
+	FILE *fp = openUserFile(loggedIn);
 
+	printf("Friends:\n\t");
+	char c = fgetc(fp);
 
-void addFriend(Graph network) {
-	char me[50], other[50];
-    User *myU, *otherU;
+	if (c == '#') {	//this profile has friends
+		fgetc(fp);	//jumps '\n'
+		int k = 0;
+		char name[50];
 
-    printf("What is your name?\n");
-    scanf("%[\n\r]",me);
-    setName(myU,me);
+		c = fgetc(fp);
+		while (c != '$' && !feof(fp)) {
+			if (c == '\n') {
+				name[k] = '\0';
+				User *friend = searchVertexReturnData(network, compareName, name);
+				double sim = similarity(loggedIn, friend);
+				printf("%s ", name);
+				if (sim < THRESHOLD) printf("(might not be a true friendship)\n\t");
+				else printf("\n\t");
+				k = 0;
+			}
+			else name[k++] = c;
+			c = fgetc(fp);
+		}
+		printf("\n\t");
+	}
+	else printf("NONE\n\n\t");
 
-	User *found = searchVertexReturnData(network,compareName,myU);
-    if (found == NULL) {
-        printf("The user does not exist");
-        return;
-    }
-	memcpy(myU, found, getUserSize(myU));
+	printf("Friendship requests:\n\t");
 
-    printf("What is the name of the person that you're searching?\n");
-    scanf("%[\n\r]", other);
-    setName(otherU, other);
+	if (c == '$') {	//this profile has friendship requests
+		fgetc(fp);	//jumps '\n'
+		int k = 0;
+		char name[50];
 
-	found = searchVertexReturnData(network,compareName,otherU);
-    if (found == NULL) {
-        printf("The user does not exist");
-        return;
-    }
-	memcpy(otherU, found, getUserSize(otherU));
-
-	if (similarity(myU, otherU) < THRESHOLD) {
-		printf("Are you sure? This person might not be a true friend... (Y/N)\n");
-		char opt;
-		scanf("%c", &opt);
-		if (opt == 'N') return;
-		else {
-			strcat(other,".txt");
-		    //that file contains the name of the person
-		    //who sent a friend invite to the file name person
-		    FILE* fp = fopen(other,"a");
-		    //write the name of the person who sent the invite
-		    fprintf(fp,"%s\n",me);
-
-		    fclose(fp);
+		c = fgetc(fp);
+		while (c != '$' && !feof(fp)) {
+			if (c == '\n') {
+				name[k] = '\0';
+				User *friend = searchVertexReturnData(network, compareName, name);
+				double sim = similarity(loggedIn, friend);
+				printf("%s ", name);
+				if (sim < THRESHOLD) printf("- might not be a true friendship\n\t");
+				else printf("- probably a true friendship!\n");
+				k = 0;
+			}
+			else name[k++] = c;
+			c = fgetc(fp);
 		}
 	}
-	else {
-		strcat(other,".txt");
-	    //that file contains the name of the person
-	    //who sent a friend invite to the file name person
-	    FILE* fp = fopen(other,"a");
-	    //write the name of the person who sent the invite
-	    fprintf(fp,"%s\n",me);
+	else printf("NONE\n");
 
-	    fclose(fp);
+	fclose(fp);
+}
+
+//QUASE FINALIZADA: FALTA FAZER A VERIFICACAO DE QUE, SE VOCE JA MANDOU SOLICITACAO PARA A PESSOA (OU E AMIGO DELA), NAO PODE MANDAR OUTRA
+void addFriend(Graph network) {
+	char search[51];
+    printf("\n\tWhat's the name of the person that you're searching?\n\t)> ");
+    fgets(search, 51, stdin);
+	if (search[strlen(search)-1] == '\n') search[strlen(search)-1] = '\0';
+
+	User *found = searchVertexReturnData(network, compareName, search);
+    if (found == NULL) {
+        printf("\n\tThe user does not exist.\n");
+        return;
+    }
+
+	int idFound = searchVertexReturnPos(network, compareName, search);
+	if (isAdjacent(network, myId, idFound)) {
+		printf("\n\tYou're already friend of this person.\n");
+		return;
+	}
+
+	if (getEdgeCost(network, myId, idFound) < THRESHOLD) {
+		printf("\n\tAre you sure? This person might not be a true friend... (Y/N)\n\t)> ");
+		char opt;
+		scanf("%c", &opt);
+		getchar();	//throws '\n' away
+		if (opt == 'N') return;
+		else if (opt == 'Y') {
+			FILE *fp = openUserFile(found);	//this file contains the name of the person who sent a friend invite to the file name person
+			char c = fgetc(fp);
+			if (c == '#') {
+				while (c != '$' && !feof(fp)) c = fgetc(fp);
+				if (feof(fp)) {
+					fputc('$', fp);
+					fputc('\n', fp);
+				}
+			}
+			else if (feof(fp)) {
+				fputc('$', fp);
+				fputc('\n', fp);
+			}
+
+			freopen(NULL, "a", fp);
+			fprintf(fp, "%s\n", getName(loggedIn));	//write the name of the person who sent the invite
+		    fclose(fp);
+			printf("\n\tFriendship request send!");
+		}
+		else inputError();
+	}
+	else {
+		FILE *fp = openUserFile(found);	//this file contains the name of the person who sent a friend invite to the file name person
+		char c = fgetc(fp);
+		if (c == '#') {
+			while (c != '$' && !feof(fp)) c = fgetc(fp);
+			if (feof(fp)) {
+				fputc('$', fp);
+				fputc('\n', fp);
+			}
+		}
+		else if (feof(fp)) {
+			fputc('$', fp);
+			fputc('\n', fp);
+		}
+
+		freopen(NULL, "a", fp);
+		fprintf(fp, "%s\n", getName(loggedIn));	//write the name of the person who sent the invite
+		fclose(fp);
+		printf("\n\tFriendship request send!");
 	}
 }
 
+void removeFriend(Graph network) {
+
+}
+
+//TODO: mudar essa funcao
 void findFriend(Graph network) {
 
 	char me[50];
@@ -284,27 +365,13 @@ void findMatch(Graph network) {
 
 }
 
-void listProfile(Graph network) {
-	//TODO: just use the function printGraph and make the function of printing
-}
-
-void myProfile(Graph network) {
-
-	char me[50];
-	User *meU;
-
-	printf("What is your name?\n");
-    scanf("%[\n\r]", me);
-	setName(meU, me);
-
-	if(!searchVertexReturnData(network, compareName, meU)) {
-        printf("The user does not exist");
-        return;
-    }
-
-	//TODO: listar os invites de amizade
-	//TODO: listar os amigos atuais
-
+void listProfiles(Graph network) {
+	printf("\n");
+	for (int i = 0; i < numVertices(network); i++) {
+		User *cur = getVertexData(network, i);
+		printProfile(cur);
+		printf("\n");
+	}
 }
 
 
@@ -337,31 +404,105 @@ void printLogo() {
 }
 
 void finishSession() {
-	printf("Finishing session...\n");
+	printf("\n\tFinishing session...\n");
 	exit(0);
 }
 
-void welcomeUser() {
+User *newProfile() {
+	User *new = newUser();
+	char strBuffer[51];
+	int intBuffer;
+
+	printf("\n\tOk. First, type in your name: \n\t======> ");
+	fgets(strBuffer, 51, stdin);
+	if (strBuffer[strlen(strBuffer)-1] == '\n') strBuffer[strlen(strBuffer)-1] = '\0';
+	setName(new, strBuffer);
+
+	printf("\n\tGreat! Now, your age: \n\t======> ");
+	scanf("%d", &intBuffer);
+	getchar();	//gets '\n' from stdin
+	setAge(new, intBuffer);
+
+	printf("\n\tChoose your gender\n\t");
+	printf("[1] Male\t[2] Female\n\t");
+	scanf("%d", &intBuffer);
+	getchar();	//gets '\n' from stdin
+	if (intBuffer == 1) setGender(new, "Male");
+	else if (intBuffer == 2) setGender(new, "Female");
+	else inputError();
+
+	printf("\n\tWhat is the city you're currently living? \n\t======> ");
+	fgets(strBuffer, 51, stdin);
+	if (strBuffer[strlen(strBuffer)-1] == '\n') strBuffer[strlen(strBuffer)-1] = '\0';
+	setCurrentCity(new, strBuffer);
+
+	printf("\n\tWhat is the city you were born/raised? \n\t======> ");
+	fgets(strBuffer, 51, stdin);
+	if (strBuffer[strlen(strBuffer)-1] == '\n') strBuffer[strlen(strBuffer)-1] = '\0';
+	setOriginCity(new, strBuffer);
+
+	printf("\n\tWhat is your favorite football club? \n\t======> ");
+	fgets(strBuffer, 51, stdin);
+	if (strBuffer[strlen(strBuffer)-1] == '\n') strBuffer[strlen(strBuffer)-1] = '\0';
+	setFootballClub(new, strBuffer);
+
+	printf("\n\tWhat is your favorite musical genre? \n\t======> ");
+	fgets(strBuffer, 51, stdin);
+	if (strBuffer[strlen(strBuffer)-1] == '\n') strBuffer[strlen(strBuffer)-1] = '\0';
+	setMusicalGenre(new, strBuffer);
+
+	printf("\n\tWhat is your favorite movie genre? \n\t======> ");
+	fgets(strBuffer, 51, stdin);
+	if (strBuffer[strlen(strBuffer)-1] == '\n') strBuffer[strlen(strBuffer)-1] = '\0';
+	setMovieGenre(new, strBuffer);
+
+	printf("\n\tWhat is your favorite food? \n\t======> ");
+	fgets(strBuffer, 51, stdin);
+	if (strBuffer[strlen(strBuffer)-1] == '\n') strBuffer[strlen(strBuffer)-1] = '\0';
+	setFavoriteFood(new, strBuffer);
+
+	printf("\n\tChoose a relashionship interest\n\t");
+	printf("[1] Men    [2] Women    [3] Both    [4] None\n\t");
+	scanf("%d", &intBuffer);
+	getchar();	//gets '\n' from stdin
+	if (intBuffer == 1) setInterest(new, "Men");
+	else if (intBuffer == 2) setInterest(new, "Women");
+	else if (intBuffer == 3) setInterest(new, "Both");
+	else if (intBuffer == 4) setInterest(new, "None");
+	else inputError();
+
+	return new;
+}
+
+void welcomeUser(Graph network) {
 	printf("\n\t=========================== Welcome to TrueFriends.com! ===========================\n");
-	printf("\t\t\t\tDo you already have an account? (Y/N)\n\t");
+	printf("\t\t\t\tDo you already have an account? (Y/N)\n\t)> ");
 
 	char ans;
 	scanf("%c", &ans);
+	getchar();	//ignores '\n'
 
 	if (ans == 'Y') {
-		printf("\tWhat's your name?\n\t");
+		printf("\n\tWhat's your name?\n\t)> ");
 		char name[51];
 		fgets(name, 51, stdin);
 		if (name[strlen(name)-1] == '\n') name[strlen(name)-1] = '\0';
-		puts(name);
+
+		loggedIn = searchVertexReturnData(network, compareName, name);
+		if (loggedIn == NULL) inputError();
+		myId = searchVertexReturnPos(network, compareName, name);
+		printf("\n\tLogin completed!");
 	}
 	else if (ans == 'N') {
-		printf("\n\tDo you want to create one?\n\t");
+		printf("\n\tDo you want to create one? (Y/N)\n\t)> ");
 		scanf("%c", &ans);
+		getchar();	//ignores '\n'
 
 		if (ans == 'Y') {
-			printf("\tYour profile has been sucessfully created!\n\t");
-
+			loggedIn = newProfile();
+			myId = addProfile(network, loggedIn);
+			printUser(loggedIn);
+			printf("\n\tYour profile has been sucessfully created!");
 		}
 		else if (ans == 'N') finishSession();
 		else inputError();
@@ -371,13 +512,16 @@ void welcomeUser() {
 
 void printMenu() {
 
+	printf("\n\t_______________________________________\n\n");
     printf("\tChoose an option (type the number)\n\t");
 	printf("\t[1] see my profile\n\t");
 	printf("\t[2] add a friend\n\t");
-	printf("\t[3] find a possible friend\n\t");
-	printf("\t[4] find the perfect match\n\t");
-    printf("\t[5] list all profiles\n\t");
-    printf("\t[0] exit\n\n\t");
+	printf("\t[3] remove a friend\n\t");
+	printf("\t[4] find a possible friend\n\t");
+	printf("\t[5] find the perfect match\n\t");
+    printf("\t[6] list all profiles\n\t");
+    printf("\t[0] exit\n\t");
+	printf(")> ");
 
 }
 
@@ -397,41 +541,44 @@ int main(int argc, char const *argv[]) {
 
 	system("clear");
     printLogo();
-	welcomeUser();
+	welcomeUser(network);
 
-    while(op != 0) {
+    while (op != 0) {
         printMenu();
         scanf("%d", &op);
+		getchar();	//eats '\n'
 
         switch(op) {
-            case 0 :
+            case 0:
                 continue;
-            case 2 :
+			case 1:
+				showMyProfile(network);
+				break;
+            case 2:
                 addFriend(network);
                 break;
-            case 3 :
+			case 3:
+				removeFriend(network);
+            case 4:
                 findFriend(network);
                 break;
-            case 4 :
+            case 5:
                 findMatch(network);
                 break;
-            case 5 :
-                listProfile(network);
+            case 6:
+                listProfiles(network);
                 break;
-            case 6 :
-                myProfile(network);
-                break;
-            default :
+            default:
                 printf("\tNot an option\n");
                 break;
         }
-        system("clear");
     }
 
-    for(int i = 0; i < number_users; i++) removeUser(users_list[i]);
+    for (int i = 0; i < number_users; i++) removeUser(users_list[i]);
     free(users_list);
 	freeGraph(network);
 	fclose(fp);
 
+	finishSession();
     return 0;
 }
