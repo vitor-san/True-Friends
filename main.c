@@ -332,37 +332,15 @@ void addFriend(Graph network) {
 }
 
 void removeFriend(Graph network) {
-
+	//TODO
 }
 
-//TODO: mudar essa funcao
 void findFriend(Graph network) {
-
-	char me[50];
-	User *meU,*iterator;
-
-	printf("What is your name?\n");
-    scanf("%[\n\r]",me);
-	setName(meU,me);
-
-	if(!searchVertexReturnData(network,compareName,meU)) {
-        printf("The user does not exist");
-        return;
-    }
-
-	int numUsers = numVertices(network);
-
-	for (int i = 0; i < numUsers; i++) {
-		//iterator = network->list[i];
-		//TODO: calcular a semelhanca
-	}
-
-
-
+	//TODO
 }
 
 void findMatch(Graph network) {
-
+	//TODO
 }
 
 void listProfiles(Graph network) {
@@ -373,7 +351,6 @@ void listProfiles(Graph network) {
 		printf("\n");
 	}
 }
-
 
 void printLogo() {
 
