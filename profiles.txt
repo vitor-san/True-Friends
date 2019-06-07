@@ -63,3 +63,14 @@ Musical genre: Sertanejo
 Movie genre: Comedia
 Favorite food: Lasanha
 Interested in: Women
+
+Name: Rodrigo Arboleda
+Age: 20
+Gender: Male
+Current city: Sao Carlos
+Origin city: Sao Paulo
+Football club: Nenhum
+Musical genre: Sertanejo
+Movie genre: Comedia
+Favorite food: Pizza
+Interested in: Women
