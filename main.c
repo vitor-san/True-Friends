@@ -345,7 +345,23 @@ void acceptFriend(Graph network) {
 }
 
 void removeFriend(Graph network) {
-	//TODO
+
+	char search[51];
+    printf("\n\tWhat's the name of the person that you want to remove?\n\t)> ");
+    fgets(search, 51, stdin);
+	if (search[strlen(search)-1] == '\n') search[strlen(search)-1] = '\0';
+
+	int found = searchVertexReturnPos(network, compareName, search);
+
+    if (found == -1) {
+        printf("\n\tThe user does not exist.\n");
+        return;
+    }
+
+	removeVertex(network,found);
+
+	printf("\n\tFriend removed\n\t");
+
 }
 
 void findFriend(Graph network) {
