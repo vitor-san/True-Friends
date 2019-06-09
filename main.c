@@ -341,7 +341,30 @@ void addFriend(Graph network) {
 }
 
 void acceptFriend(Graph network) {
-	//TODO
+
+	char search[51];
+    printf("\n\tWhat's the name of the person that you want to remove?\n\t)> ");
+    fgets(search, 51, stdin);
+	if (search[strlen(search)-1] == '\n') search[strlen(search)-1] = '\0';
+
+	FILE *fp = openUserFile(loggedIn);	//this file contains the name of the person who sent a friend invite to the file name person
+
+	char c = fgetc(fp);
+	if (c == '#') {
+		while (c != '$' && !feof(fp)) c = fgetc(fp);
+		//TODO: find the request
+		if (feof(fp)) {
+			printf("You don't have friend requests\n\t");
+		}
+	}
+
+	else if (c == '$') {
+		//TODO: find the request
+	}
+
+	//TODO: procces the request
+
+
 }
 
 void removeFriend(Graph network) {
