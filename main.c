@@ -127,14 +127,14 @@ void createUserFile(User *u) {
 	fclose(fp);
 }
 
-FILE *openUserFile(User *u) {
+FILE *openUserFile(User *u,char* mode) {
 	char *noSpace = noWhitespace(getName(u));
 	char path[100] = "./Profiles/";
 	strcat(noSpace, ".txt");
 	strcat(path, noSpace);
 	free(noSpace);
 
- 	return fopen(path, "r+");
+ 	return fopen(path, mode);
 }
 
 int addProfile(Graph network, User *u) {
@@ -177,7 +177,7 @@ double similarity(User *a, User *b) {
 void buildNetwork(Graph network) {
 	for (int i = 0; i < numVertices(network); i++) {
 		User *cur = getVertexData(network, i);
-		FILE *userFile = openUserFile(cur);
+		FILE *userFile = openUserFile(cur,"r+");
 
 		if (userFile == NULL) {
 			fprintf(stderr, "Error loading dataset\n");
@@ -216,7 +216,7 @@ void showMyProfile(Graph network) {
 	printf("\n");
 	printUser(loggedIn);
 	printf("\n\t");
-	FILE *fp = openUserFile(loggedIn);
+	FILE *fp = openUserFile(loggedIn,"r+");
 
 	printf("Friends:\n\t");
 	char c = fgetc(fp);
@@ -297,7 +297,7 @@ void addFriend(Graph network) {
 		getchar();	//throws '\n' away
 		if (opt == 'N') return;
 		else if (opt == 'Y') {
-			FILE *fp = openUserFile(found);	//this file contains the name of the person who sent a friend invite to the file name person
+			FILE *fp = openUserFile(found,"r+");	//this file contains the name of the person who sent a friend invite to the file name person
 			char c = fgetc(fp);
 			if (c == '#') {
 				while (c != '$' && !feof(fp)) c = fgetc(fp);
@@ -319,7 +319,7 @@ void addFriend(Graph network) {
 		else inputError();
 	}
 	else {
-		FILE *fp = openUserFile(found);	//this file contains the name of the person who sent a friend invite to the file name person
+		FILE *fp = openUserFile(found,"r+");	//this file contains the name of the person who sent a friend invite to the file name person
 		char c = fgetc(fp);
 		if (c == '#') {
 			while (c != '$' && !feof(fp)) c = fgetc(fp);
@@ -347,7 +347,7 @@ void acceptFriend(Graph network) {
     fgets(search, 51, stdin);
 	if (search[strlen(search)-1] == '\n') search[strlen(search)-1] = '\0';
 
-	FILE *fp = openUserFile(loggedIn);	//this file contains the name of the person who sent a friend invite to the file name person
+	FILE *fp = openUserFile(loggedIn,"r+");	//this file contains the name of the person who sent a friend invite to the file name person
 
 	char c = fgetc(fp);
 	if (c == '#') {
@@ -367,6 +367,53 @@ void acceptFriend(Graph network) {
 
 }
 
+void removeFriendFromFile(User* userFile, Graph network,char target[51]) {
+	FILE *fp = openUserFile(userFile,"r+");	//this file contains the name of the person who sent a friend invite to the file name person
+
+	char c = fgetc(fp);
+	c = fgetc(fp);
+	char friends[numVertices(network)][51],friendsInvite[numVertices(network)][51];
+	char tempLine[51];
+	int pos = 0,posI = 0;
+
+	while(tempLine[0] != '$' && !feof(fp)) {
+		fscanf(fp,"%[^\n]\n",tempLine);
+		if(strcmp(tempLine,target)) {
+			//printf("%s\n", tempLine);
+			strcpy(friends[pos],tempLine);
+			pos++;
+		}
+	}
+
+	while(!feof(fp)) {
+		fscanf(fp,"%[^\n]\n",tempLine);
+		if(strcmp(tempLine,target)) {
+			//printf("%s\n", tempLine);
+			strcpy(friendsInvite[posI],tempLine);
+			posI++;
+		}
+	}
+
+	fclose(fp);
+	fp = openUserFile(userFile,"w+");	//this file contains the name of the person who sent a friend invite to the file name person
+
+	if (pos > 1 || friends[0][0] != '$') {
+		fprintf(fp,"#\n");
+	}
+
+	for (int i = 0; i < pos; i++) {
+		fprintf(fp,"%s\n",friends[i]);
+	}
+
+	for (int i = 0; i < posI; i++) {
+		fprintf(fp,"%s\n",friendsInvite[i]);
+	}
+
+	fclose(fp);
+
+}
+
+
 void removeFriend(Graph network) {
 
 	char search[51];
@@ -375,13 +422,17 @@ void removeFriend(Graph network) {
 	if (search[strlen(search)-1] == '\n') search[strlen(search)-1] = '\0';
 
 	int found = searchVertexReturnPos(network, compareName, search);
+	User* foundUser = searchVertexReturnData(network, compareName, search);
 
     if (found == -1) {
         printf("\n\tThe user does not exist.\n");
         return;
     }
 
-	removeVertex(network,found);
+	removeEdge(network,found,myId);
+
+	removeFriendFromFile(loggedIn,network,search);
+	removeFriendFromFile(foundUser,network,getName(loggedIn));
 
 	printf("\n\tFriend removed\n\t");
 
