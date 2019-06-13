@@ -4,7 +4,8 @@
 #include "graph.h"
 #include "user.h"
 
-#define THRESHOLD 0.45
+#define FRIEND_THRESHOLD 0.45
+#define MATCH_THRESHOLD 0.65
 
 User *loggedIn;
 int myId;
@@ -127,7 +128,7 @@ void createUserFile(User *u) {
 	fclose(fp);
 }
 
-FILE *openUserFile(User *u,char* mode) {
+FILE *openUserFile(User *u,char *mode) {
 	char *noSpace = noWhitespace(getName(u));
 	char path[100] = "./Profiles/";
 	strcat(noSpace, ".txt");
@@ -158,8 +159,23 @@ double ageSimilarity(int age1, int age2) {
 	return age2/(double)age1;
 }
 
-double similarity(User *a, User *b) {
+double friendSimilarity(User *a, User *b) {
 	double const weight[] = {0.25, 0.2, 0.1, 0.1, 0.2, 0.1, 0.05};
+	double sim = 0;
+
+	sim += weight[0]*ageSimilarity(getAge(a), getAge(b));
+	if (strcmp(getCurrentCity(a), getCurrentCity(b)) == 0) sim += weight[1];
+	if (strcmp(getOriginCity(a), getOriginCity(b)) == 0) sim += weight[2];
+	if (strcmp(getFootballClub(a), getFootballClub(b)) == 0) sim += weight[3];
+	if (strcmp(getMusicalGenre(a), getMusicalGenre(b)) == 0) sim += weight[4];
+	if (strcmp(getMovieGenre(a), getMovieGenre(b)) == 0) sim += weight[5];
+	if (strcmp(getFavoriteFood(a), getFavoriteFood(b)) == 0) sim += weight[6];
+
+	return sim;
+}
+
+double matchSimilarity(User *a, User *b) {
+	double const weight[] = {0.3, 0.3, 0.05, 0.05, 0.15, 0.05, 0.1};
 	double sim = 0;
 
 	sim += weight[0]*ageSimilarity(getAge(a), getAge(b));
@@ -197,7 +213,7 @@ void buildNetwork(Graph network) {
 					User *friend = searchVertexReturnData(network, compareName, name);
 					int pos = searchVertexReturnPos(network, compareName, name);
 
-					double sim = similarity(cur, friend);
+					double sim = friendSimilarity(cur, friend);
 					if (addEdge(network, i, pos)) {
 						setEdgeCost(network, i, pos, sim);
 					}
@@ -231,9 +247,9 @@ void showMyProfile(Graph network) {
 			if (c == '\n') {
 				name[k] = '\0';
 				User *friend = searchVertexReturnData(network, compareName, name);
-				double sim = similarity(loggedIn, friend);
+				double sim = friendSimilarity(loggedIn, friend);
 				printf("%s ", name);
-				if (sim < THRESHOLD) printf("(might not be a true friendship)\n\t");
+				if (sim < FRIEND_THRESHOLD) printf("(might not be a true friendship)\n\t");
 				else printf("\n\t");
 				k = 0;
 			}
@@ -256,9 +272,9 @@ void showMyProfile(Graph network) {
 			if (c == '\n') {
 				name[k] = '\0';
 				User *friend = searchVertexReturnData(network, compareName, name);
-				double sim = similarity(loggedIn, friend);
+				double sim = friendSimilarity(loggedIn, friend);
 				printf("%s ", name);
-				if (sim < THRESHOLD) printf("- might not be a true friendship\n\t");
+				if (sim < FRIEND_THRESHOLD) printf("- might not be a true friendship\n\t");
 				else printf("- probably a true friendship!\n");
 				k = 0;
 			}
@@ -271,7 +287,35 @@ void showMyProfile(Graph network) {
 	fclose(fp);
 }
 
-//QUASE FINALIZADA: FALTA FAZER A VERIFICACAO DE QUE, SE VOCE JA MANDOU SOLICITACAO PARA A PESSOA (OU E AMIGO DELA), NAO PODE MANDAR OUTRA
+int hasSendFriendRequest(User *person) {
+	FILE *fp = openUserFile(person, "r");
+	char c = fgetc(fp);
+	if (c == '#') while (c != '$' && !feof(fp)) c = fgetc(fp);	//jump friends section
+
+	if (c == '$') {	//this profile has friendship requests
+		fgetc(fp);	//jumps '\n'
+		int k = 0;
+		char name[50];
+
+		c = fgetc(fp);
+		while (c != '$' && !feof(fp)) {
+			if (c == '\n') {
+				name[k] = '\0';
+				if (strcmp(name, getName(loggedIn)) == 0) {
+					fclose(fp);
+					return 1;
+				}
+				k = 0;
+			}
+			else name[k++] = c;
+			c = fgetc(fp);
+		}
+	}
+
+	fclose(fp);
+	return 0;
+}
+
 void addFriend(Graph network) {
 	char search[51];
     printf("\n\tWhat's the name of the person that you want to add?\n\t)> ");
@@ -290,7 +334,12 @@ void addFriend(Graph network) {
 		return;
 	}
 
-	if (similarity(loggedIn, found) < THRESHOLD) {
+	if (hasSendFriendRequest(found)) {	//voce ja mandou a solicitacao de amizade para aquela pessoa
+		printf("\n\tYou already send a friendship request to this person.");
+		return;
+	}
+
+	if (friendSimilarity(loggedIn, found) < FRIEND_THRESHOLD) {
 		printf("\n\tAre you sure? This person might not be a true friend... (Y/N)\n\t)> ");
 		char opt;
 		scanf("%c", &opt);
