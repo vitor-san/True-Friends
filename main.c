@@ -280,13 +280,13 @@ void addFriend(Graph network) {
 
 	User *found = searchVertexReturnData(network, compareName, search);
     if (found == NULL) {
-        printf("\n\tThe user does not exist.\n");
+        printf("\n\tThe user does not exist.");
         return;
     }
 
 	int idFound = searchVertexReturnPos(network, compareName, search);
 	if (isAdjacent(network, myId, idFound)) {
-		printf("\n\tYou're already friend of this person.\n");
+		printf("\n\tYou're already friend of this person.");
 		return;
 	}
 
@@ -379,7 +379,6 @@ void removeFriendFromFile(User* userFile, Graph network,char target[51]) {
 	while(tempLine[0] != '$' && !feof(fp)) {
 		fscanf(fp,"%[^\n]\n",tempLine);
 		if(strcmp(tempLine,target)) {
-			//printf("%s\n", tempLine);
 			strcpy(friends[pos],tempLine);
 			pos++;
 		}
@@ -388,7 +387,6 @@ void removeFriendFromFile(User* userFile, Graph network,char target[51]) {
 	while(!feof(fp)) {
 		fscanf(fp,"%[^\n]\n",tempLine);
 		if(strcmp(tempLine,target)) {
-			//printf("%s\n", tempLine);
 			strcpy(friendsInvite[posI],tempLine);
 			posI++;
 		}
@@ -425,7 +423,7 @@ void removeFriend(Graph network) {
 	User* foundUser = searchVertexReturnData(network, compareName, search);
 
     if (found == -1) {
-        printf("\n\tThe user does not exist.\n");
+        printf("\n\tThe user does not exist.");
         return;
     }
 
@@ -434,7 +432,7 @@ void removeFriend(Graph network) {
 	removeFriendFromFile(loggedIn,network,search);
 	removeFriendFromFile(foundUser,network,getName(loggedIn));
 
-	printf("\n\tFriend removed\n\t");
+	printf("\n\tFriend removed.");
 
 }
 
