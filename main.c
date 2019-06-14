@@ -101,7 +101,10 @@ void inputError() {
 	exit(1);
 }
 
-//This function DO NOT modify the original string
+/*
+	Returns the string passed as parameter, but without whitespaces.
+	This function DO NOT modify the original string.
+*/
 char *noWhitespace(char *string) {
 	char *returnString = calloc(strlen(string), sizeof(char));
 	char copy[51];
@@ -117,6 +120,10 @@ char *noWhitespace(char *string) {
 	return returnString;
 }
 
+/*
+	Create a user file (under the directory "Profiles"),
+	which will hold the user's friends and friendship requests.
+*/
 void createUserFile(User *u) {
 	char *noSpace = noWhitespace(getName(u));
 	char path[100] = "./Profiles/";
@@ -128,6 +135,10 @@ void createUserFile(User *u) {
 	fclose(fp);
 }
 
+/*
+	Open a user file under "Profile" directory,
+	and return it's address in memory.
+*/
 FILE *openUserFile(User *u,char *mode) {
 	char *noSpace = noWhitespace(getName(u));
 	char path[100] = "./Profiles/";
@@ -138,6 +149,9 @@ FILE *openUserFile(User *u,char *mode) {
  	return fopen(path, mode);
 }
 
+/*
+	Add a user to the Network graph.
+*/
 int addProfile(Graph network, User *u) {
     static int id = 0;
     addVertex(network, id);
@@ -146,19 +160,34 @@ int addProfile(Graph network, User *u) {
 	return id-1;	//the added profile id
 }
 
+/*
+	Generic function for user removal.
+*/
 void removeProfile(void *user) {
 	removeUser((User *)user);
 }
 
+/*
+	Generic function for user printing.
+*/
 void printProfile(void *user) {
 	printUser((User *)user);
 }
 
+/*
+	Return the similarity between two users
+	age (value is between 0 and 1).
+*/
 double ageSimilarity(int age1, int age2) {
 	if (age1 < age2) return age1/(double)age2;
 	return age2/(double)age1;
 }
 
+/*
+	Return the similarity between two users,
+	considering a friendship relation
+	(value is between 0 and 1).
+*/
 double friendSimilarity(User *a, User *b) {
 	double const weight[] = {0.25, 0.2, 0.1, 0.1, 0.2, 0.1, 0.05};
 	double sim = 0;
@@ -174,6 +203,11 @@ double friendSimilarity(User *a, User *b) {
 	return sim;
 }
 
+/*
+	Return the similarity between two users,
+	considering a match between them
+	(value is between 0 and 1).
+*/
 double matchSimilarity(User *a, User *b) {
 	double const weight[] = {0.3, 0.3, 0.05, 0.05, 0.15, 0.05, 0.1};
 	double sim = 0;
@@ -189,7 +223,9 @@ double matchSimilarity(User *a, User *b) {
 	return sim;
 }
 
-//This function will build all the edges (friendships) of our network.
+/*
+	Build all the edges (friendships) of our network.
+*/
 void buildNetwork(Graph network) {
 	for (int i = 0; i < numVertices(network); i++) {
 		User *cur = getVertexData(network, i);
@@ -347,7 +383,7 @@ void addFriend(Graph network) {
 	}
 
 	if (hasSendFriendRequest(getName(found), loggedIn)) {
-		printf("\n\tThe person you want to add has already sent a friendship request to you.");
+		printf("\n\tThe person you want to add has already sent a friendship request to you.\n\t");
 		return;
 	}
 
@@ -401,7 +437,9 @@ void addFriend(Graph network) {
 	}
 }
 
-//This function update the file after the friend was accepted
+/*
+	Update the user's file after a friend request was accepted.
+*/
 void updateFile(Graph network, char *user_change, char *name_accept){
 
 	User *user_ = searchVertexReturnData(network, compareName, user_change);
@@ -602,6 +640,11 @@ void removeFriend(Graph network) {
 
 }
 
+/*
+	Find, amongst all users that are not friends
+	with the logged in user, the one with most
+	friend similarity with him.
+*/
 void findFriend(Graph network) {
 	User *possFriend = NULL;
 	double baseSim = FRIEND_THRESHOLD;
@@ -625,6 +668,11 @@ void findFriend(Graph network) {
 	printf("%s", getName(possFriend));
 }
 
+/*
+	Find, amongst all users, the one with most
+	match similarity with the logged in user
+	(considering his interest).
+*/
 void findMatch(Graph network) {
 	User *match = NULL;
 	double baseSim = MATCH_THRESHOLD;
@@ -688,6 +736,10 @@ void findMatch(Graph network) {
 	printf("%s", getName(match));
 }
 
+/*
+	List all current profiles in the network
+	(without listing the loggen in user himself).
+*/
 void listProfiles(Graph network) {
 	printf("\n\t==================================================");
 	for (int i = 0; i < numVertices(network); i++) {
@@ -732,6 +784,10 @@ void finishSession() {
 	exit(0);
 }
 
+/*
+	Setup to create a new profile and add it
+	to the network.
+*/
 User *newProfile() {
 	User *new = newUser();
 	char strBuffer[51];
@@ -798,6 +854,11 @@ User *newProfile() {
 	return new;
 }
 
+/*
+	Program's first screen. Check if the person
+	using it already have an account or not, and
+	in case not, let him create one.
+*/
 void welcomeUser(Graph network, FILE *fp) {
 	printf("\n\t=========================== Welcome to TrueFriends.com! ===========================\n");
 	printf("\t\t\t\tDo you already have an account? (Y/N)\n\t)> ");
