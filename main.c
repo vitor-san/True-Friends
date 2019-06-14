@@ -347,8 +347,7 @@ void addFriend(Graph network) {
 	}
 
 	if (hasSendFriendRequest(getName(found), loggedIn)) {
-		printf("\n\tThe person you want to add has already sent a friendship request to you.\n\t");
-		printf("Accept or decline it before proceeding...");
+		printf("\n\tThe person you want to add has already sent a friendship request to you.");
 		return;
 	}
 
