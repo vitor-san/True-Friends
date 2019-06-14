@@ -395,12 +395,16 @@ void addFriend(Graph network) {
 	}
 }
 
+//This function update the file after the friend was accepted
 void updateFile(Graph network, char *user_change, char *name_accept){
+
 	User *user_ = searchVertexReturnData(network, compareName, user_change);
 	FILE *fp = openUserFile(user_ , "r");
-	FILE *aux  = fopen("auxiliar.txt", "w+");
+	FILE *aux  = fopen("auxiliary.txt", "w+");
 	char name[51], tag_1 = '#', tag_2 = '$', skip_line = '\n', c;
 	int count = 0;
+
+	//writes in the file auxiliary.txt the updated file
 	fread(&c, sizeof(char), 1, fp);
 	fwrite(&tag_1, sizeof(char), 1, aux);
 	fwrite(&skip_line, sizeof(char), 1, aux);
@@ -438,8 +442,9 @@ void updateFile(Graph network, char *user_change, char *name_accept){
 	}
 	fclose(fp);
 	rewind(aux);
-	fp = openUserFile(user_,"w+");//this file contains the name of the person who sent a friend invite to the file name person
+	fp = openUserFile(user_,"w+");//in this file all content was deleted
 	c = fgetc(aux);
+	//writing the new content in the origin file
 	if(c == tag_1){
 		fwrite(&c, sizeof(char), 1, fp);
 		fwrite(&skip_line, sizeof(char), 1, fp);
@@ -468,7 +473,7 @@ void updateFile(Graph network, char *user_change, char *name_accept){
 	}
 	fclose(aux);
 	fclose(fp);
-	remove("auxiliar.txt");
+	remove("auxiliary.txt");
 }
 
 void acceptFriend(Graph network) {
@@ -495,7 +500,7 @@ void acceptFriend(Graph network) {
 	int count_aux=1;
 	c = fgetc(fp);
 	if (c == '#') while (c != '$' && !feof(fp)) c = fgetc(fp);	//jump friends section
-	if(c == '$'){
+	if(c == '$'){ //geting the name of the person that will be accepted
 		while(1){
 			c = fgetc(fp);
 			fscanf(fp, "%[^\n]", name_accept);
@@ -504,10 +509,18 @@ void acceptFriend(Graph network) {
 			strcpy(name_accept, "");
 		}
 	}
+	printf("\n\t%s was accepted\n", name_accept);
+	//union two new friends in the graph
+	User *new_friend = searchVertexReturnData(network, compareName, name_accept);
+	int pos = searchVertexReturnPos(network, compareName, name_accept);
+	double sim = friendSimilarity(loggedIn, new_friend);
+	if (addEdge(network, myId, pos)) {
+		setEdgeCost(network, myId, pos, sim);
+	}
 	fclose(fp);
+	//updating the two files
 	updateFile(network, getName(loggedIn), name_accept);
 	updateFile(network, name_accept, getName(loggedIn));
-	addEdge(network, myId, searchVertexReturnPos(network, compareName, name_accept));	//adds an edge between the two, representing the friendship they have just made
 }
 
 void removeFriendFromFile(User* userFile, Graph network,char target[51]) {
