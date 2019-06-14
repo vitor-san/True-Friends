@@ -237,7 +237,7 @@ int showMyFriendRequests(FILE *fp, Graph network, int showIndex) {
 		int k = 0;
 		char name[50];
 
-		c = fgetc(fp);
+		char c = fgetc(fp);
 		while (c != '$' && !feof(fp)) {
 			if (c == '\n') {
 				name[k] = '\0';
@@ -246,20 +246,20 @@ int showMyFriendRequests(FILE *fp, Graph network, int showIndex) {
 				if (showIndex) printf("[%d] ", ++count);
 				printf("%s ", name);
 				if (sim < FRIEND_THRESHOLD) printf("- might not be a true friendship\n\t");
-				else printf("- probably a true friendship!\n");
+				else printf("- probably a true friendship!\n\t");
 				k = 0;
 			}
 			else name[k++] = c;
 			c = fgetc(fp);
 		}
 	}
-	else printf("NONE\n");
+	else printf("NONE\n\t");
 
 	return count;
 }
 
 void showMyProfile(Graph network) {
-	printf("\n");
+	printf("\n\t=====================================================\n");
 	printUser(loggedIn);
 	printf("\n\t");
 	FILE *fp = openUserFile(loggedIn,"r+");
@@ -279,7 +279,7 @@ void showMyProfile(Graph network) {
 				User *friend = searchVertexReturnData(network, compareName, name);
 				double sim = friendSimilarity(loggedIn, friend);
 				printf("%s ", name);
-				if (sim < FRIEND_THRESHOLD) printf("(might not be a true friendship)\n\t");
+				if (sim < FRIEND_THRESHOLD) printf("- might not be a true friendship\n\t");
 				else printf("\n\t");
 				k = 0;
 			}
@@ -289,12 +289,13 @@ void showMyProfile(Graph network) {
 	}
 	else printf("NONE\n\t");
 	showMyFriendRequests(fp, network, 0);
+	printf("=====================================================");
 
 	fclose(fp);
 }
 
-int hasSendFriendRequest(User *person) {
-	FILE *fp = openUserFile(person, "r");
+int hasSendFriendRequest(char *yourName, User *target) {
+	FILE *fp = openUserFile(target, "r");
 	char c = fgetc(fp);
 	if (c == '#') while (c != '$' && !feof(fp)) c = fgetc(fp);	//jump friends section
 
@@ -307,7 +308,7 @@ int hasSendFriendRequest(User *person) {
 		while (c != '$' && !feof(fp)) {
 			if (c == '\n') {
 				name[k] = '\0';
-				if (strcmp(name, getName(loggedIn)) == 0) {
+				if (strcmp(name, yourName) == 0) {
 					fclose(fp);
 					return 1;
 				}
@@ -340,8 +341,14 @@ void addFriend(Graph network) {
 		return;
 	}
 
-	if (hasSendFriendRequest(found)) {	//voce ja mandou a solicitacao de amizade para aquela pessoa
-		printf("\n\tYou already send a friendship request to this person.");
+	if (hasSendFriendRequest(getName(loggedIn), found)) {	//voce ja mandou a solicitacao de amizade para aquela pessoa
+		printf("\n\tYou've already sent a friendship request to this person.");
+		return;
+	}
+
+	if (hasSendFriendRequest(getName(found), loggedIn)) {
+		printf("\n\tThe person you want to add has already sent a friendship request to you.\n\t");
+		printf("Accept or decline it before proceeding...");
 		return;
 	}
 
@@ -483,7 +490,7 @@ void acceptFriend(Graph network) {
 	char c = fgetc(fp);
 	if (c == '#') while (c != '$' && !feof(fp)) c = fgetc(fp);	//jump friends section
 	if (feof(fp)) {
-		printf("\n\tYou don't have friend requests\n\t");
+		printf("\n\tYou don't have friendship requests.\n\t");
 		return;
 	}
 
@@ -492,7 +499,7 @@ void acceptFriend(Graph network) {
 	printf("\n\tWhat's the number of the person that you want to accept?\n\t)> ");
 	scanf("%d", &number_accept);
 	while(number_accept <= 0 || number_accept > number_requests){
-		printf("\n\tInvalid option. Please type again:\n\t>)");
+		printf("\n\tInvalid number. Please, type again:\n\t)> ");
 		scanf("%d", &number_accept);
 	}
 	rewind(fp);
@@ -509,7 +516,7 @@ void acceptFriend(Graph network) {
 			strcpy(name_accept, "");
 		}
 	}
-	printf("\n\t%s was accepted\n", name_accept);
+	printf("\n\t%s was accepted.", name_accept);
 	//union two new friends in the graph
 	User *new_friend = searchVertexReturnData(network, compareName, name_accept);
 	int pos = searchVertexReturnPos(network, compareName, name_accept);
@@ -583,7 +590,11 @@ void removeFriend(Graph network) {
         return;
     }
 
-	removeEdge(network,found,myId);
+	if (!removeEdge(network,found,myId)) {	//if cannot remove edge
+		//you don't even have this person as your friend
+		printf("\n\tYou are not friends with this person.");
+        return;
+	}
 
 	removeFriendFromFile(loggedIn,network,search);
 	removeFriendFromFile(foundUser,network,getName(loggedIn));
@@ -593,19 +604,99 @@ void removeFriend(Graph network) {
 }
 
 void findFriend(Graph network) {
-	//TODO
+	User *possFriend = NULL;
+	double baseSim = FRIEND_THRESHOLD;
+
+	for (int i = 0; i < numVertices(network); i++) {
+		if (!isAdjacent(network, myId, i) && i != myId) {
+			User *cur = getVertexData(network, i);
+			double sim = friendSimilarity(loggedIn, cur);
+			if (sim > baseSim) {
+				baseSim = sim;
+				possFriend = cur;
+			}
+		}
+	}
+
+	if (possFriend == NULL) {
+		printf("\n\tOur system has not identified a friend with high enough similarity to you.");
+		return;
+	}
+	printf("\n\tYou would probably like to start a friendship with:\n\t");
+	printf("%s", getName(possFriend));
 }
 
 void findMatch(Graph network) {
-	//TODO: matchSimilarity() function
+	User *match = NULL;
+	double baseSim = MATCH_THRESHOLD;
+	char *myInterest = getInterest(loggedIn);
+
+	if (strcmp(myInterest, "None") == 0) {
+		printf("\n\tYou have no interest in either men or women.");
+		return;
+	}
+
+	if (strcmp(myInterest, "Men") == 0) {
+		for (int i = 0; i < numVertices(network); i++) {
+			if (i == myId) continue;
+
+			User *cur = getVertexData(network, i);
+			char *personGender = getGender(cur);
+
+			if (strcmp(personGender, "Male") == 0) {
+				double sim = matchSimilarity(loggedIn, cur);
+				if (sim > baseSim) {
+					baseSim = sim;
+					match = cur;
+				}
+			}
+		}
+	}
+	else if (strcmp(myInterest, "Women") == 0) {
+		for (int i = 0; i < numVertices(network); i++) {
+			if (i == myId) continue;
+
+			User *cur = getVertexData(network, i);
+			char *personGender = getGender(cur);
+
+			if (strcmp(personGender, "Female") == 0) {
+				double sim = matchSimilarity(loggedIn, cur);
+				if (sim > baseSim) {
+					baseSim = sim;
+					match = cur;
+				}
+			}
+		}
+	}
+	else {	//you are interested in both
+		for (int i = 0; i < numVertices(network); i++) {
+			if (i == myId) continue;
+
+			User *cur = getVertexData(network, i);
+			double sim = matchSimilarity(loggedIn, getVertexData(network, i));
+			if (sim > baseSim) {
+				baseSim = sim;
+				match = getVertexData(network, i);
+			}
+		}
+	}
+
+	if (match == NULL) {
+		printf("\n\tOur current base does not have a perfect match for you.");
+		return;
+	}
+	printf("\n\tYour perfect match is with:\n\t");
+	printf("%s", getName(match));
 }
 
 void listProfiles(Graph network) {
+	printf("\n\t==================================================");
 	for (int i = 0; i < numVertices(network); i++) {
 		User *cur = getVertexData(network, i);
 		if (cur == loggedIn) continue;
-		printf("\n");
+		else printf("\n");
 		printProfile(cur);
+		printf("\t==================================================");
 	}
 }
 
@@ -811,7 +902,7 @@ int main(int argc, char const *argv[]) {
                 listProfiles(network);
                 break;
             default:
-                printf("\tNot an option\n");
+                printf("\n\tInvalid option!\n");
         }
     }
 

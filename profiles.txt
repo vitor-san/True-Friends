@@ -74,3 +74,14 @@ Musical genre: Sertanejo
 Movie genre: Comedia
 Favorite food: Pizza
 Interested in: Women
+
+Name: Amanda Lima
+Age: 19
+Gender: Female
+Current city: Sao Carlos
+Origin city: Sao Paulo
+Football club: Sao Paulo
+Musical genre: Sertanejo
+Movie genre: Comedia
+Favorite food: Lasanha
+Interested in: Men
