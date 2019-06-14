@@ -481,7 +481,7 @@ void acceptFriend(Graph network) {
 	FILE *fp = openUserFile(loggedIn,"r+");	//this file contains the name of the person who sent a friend invite to the file name person
 
 	char c = fgetc(fp);
-	if (c == '#') { //seeing if a person contains friendship requests
+	if (c == '#') { //seeing if a person contains friendship requests.
 		while (c != '$' && !feof(fp)) c = fgetc(fp);
 		if (feof(fp)) {
 			printf("\n\tYou don't have friend requests\n\t");
