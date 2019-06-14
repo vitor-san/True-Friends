@@ -228,6 +228,36 @@ void buildNetwork(Graph network) {
 	}
 }
 
+int showMyFriendsRequest(FILE *fp, Graph network){
+	printf("\n\tFriendship requests:\n\t");
+	fseek(fp, -1, SEEK_CUR);
+	char c = fgetc(fp);
+	int count = 0;
+	if (c == '$') {	//this profile has friendship requests
+		fgetc(fp);	//jumps '\n'
+		int k = 0;
+		char name[50];
+		
+		c = fgetc(fp);
+		while (c != '$' && !feof(fp)) {
+			if (c == '\n') {
+				name[k] = '\0';
+				User *friend = searchVertexReturnData(network, compareName, name);
+				double sim = friendSimilarity(loggedIn, friend);
+				printf("%d - %s ", ++count, name);
+				if (sim < FRIEND_THRESHOLD) printf("- might not be a true friendship\n\t");
+				else printf("- probably a true friendship!\n");
+				k = 0;
+			}
+			else name[k++] = c;
+			c = fgetc(fp);
+		}
+	}
+	else printf("NONE\n");
+	
+	return count;
+}
+
 void showMyProfile(Graph network) {
 	printf("\n");
 	printUser(loggedIn);
@@ -256,33 +286,9 @@ void showMyProfile(Graph network) {
 			else name[k++] = c;
 			c = fgetc(fp);
 		}
-		printf("\n\t");
 	}
-	else printf("NONE\n\n\t");
-
-	printf("Friendship requests:\n\t");
-
-	if (c == '$') {	//this profile has friendship requests
-		fgetc(fp);	//jumps '\n'
-		int k = 0;
-		char name[50];
-
-		c = fgetc(fp);
-		while (c != '$' && !feof(fp)) {
-			if (c == '\n') {
-				name[k] = '\0';
-				User *friend = searchVertexReturnData(network, compareName, name);
-				double sim = friendSimilarity(loggedIn, friend);
-				printf("%s ", name);
-				if (sim < FRIEND_THRESHOLD) printf("- might not be a true friendship\n\t");
-				else printf("- probably a true friendship!\n");
-				k = 0;
-			}
-			else name[k++] = c;
-			c = fgetc(fp);
-		}
-	}
-	else printf("NONE\n");
+	else printf("NONE\n\t");
+	showMyFriendsRequest(fp, network);
 
 	fclose(fp);
 }
@@ -389,31 +395,120 @@ void addFriend(Graph network) {
 	}
 }
 
-void acceptFriend(Graph network) {
 
-	char search[51];
-    printf("\n\tWhat's the name of the person that you want to remove?\n\t)> ");
-    fgets(search, 51, stdin);
-	if (search[strlen(search)-1] == '\n') search[strlen(search)-1] = '\0';
+void updateFile(Graph network, char *user_change, char *name_accept){
+	User *user_ = searchVertexReturnData(network, compareName, user_change);
+	FILE *fp = openUserFile(user_ , "r");
+	FILE *aux  = fopen("auxiliar.txt", "w+");
+	char name[51], tag_1 = '#', tag_2 = '$', skip_line = '\n', c;
+	int count = 0;
+	fread(&c, sizeof(char), 1, fp); 
+	fwrite(&tag_1, sizeof(char), 1, aux);
+	fwrite(&skip_line, sizeof(char), 1, aux);
+	if(c == tag_1){
+		c = fgetc(fp);
+		while(c != tag_2 && !feof(fp)){
+			fscanf(fp, "%[^\n]", name);
+			fwrite(name, strlen(name), 1,aux);
+			fwrite(&skip_line, sizeof(char), 1, aux);
+			c = fgetc(fp);
+			c = fgetc(fp);
+			if(c != tag_2 && !feof(fp)) fseek(fp, -1, SEEK_CUR);
+		}	
+	}
+	fwrite(name_accept, strlen(name_accept), 1, aux);
+	fwrite(&skip_line, sizeof(char), 1, aux);
+	int first_writing=1;
+	if(c == tag_2){
+		c = fgetc(fp);	
+		while(!feof(fp)){
+			fscanf(fp, "%[^\n]", name);
+			if(strcmp(name, name_accept) != 0){
+				if(first_writing){
+					fwrite(&tag_2, sizeof(char), 1, aux);
+					fwrite(&skip_line, sizeof(char), 1, aux);
+					first_writing = 0;
+				}	
+				fwrite(name, strlen(name), 1, aux);
+				fwrite(&skip_line, sizeof(char),1, aux);
+			}
+			c = fgetc(fp);
+			c = fgetc(fp);
+			if(!feof(fp)) fseek(fp, -1, SEEK_CUR);
+		}
+	}
+	fclose(fp);
+	rewind(aux);
+	fp = openUserFile(user_,"w+");//this file contains the name of the person who sent a friend invite to the file name person
+	c = fgetc(aux);	
+	if(c == tag_1){
+		fwrite(&c, sizeof(char), 1, fp);	
+		fwrite(&skip_line, sizeof(char), 1, fp);
+		c = fgetc(aux);	
+		while(c != tag_2 && !feof(aux)){
+			fscanf(aux, "%[^\n]", name);
+			fwrite(name, strlen(name), 1, fp);
+			fwrite(&skip_line, sizeof(char), 1, fp);		
+			c = fgetc(aux);
+			c = fgetc(aux);
+			if(!feof(aux) && c != tag_2) fseek(aux, -1, SEEK_CUR);
+		}
+	}
+	if(c == tag_2){
+		fwrite(&c, sizeof(char), 1, fp);	
+		fwrite(&skip_line, sizeof(char), 1, fp);	
+		c = fgetc(aux);
+		while(!feof(aux)){
+			fscanf(aux, "%[^\n]", name);
+			fwrite(name, strlen(name), 1, fp);
+			fwrite(&skip_line, sizeof(char), 1, fp);		
+			c = fgetc(aux);
+			c = fgetc(aux);	
+			if(!feof(aux)) fseek(aux, -1, SEEK_CUR);
+		}
+	}	
+	fclose(aux);
+	fclose(fp);
+	remove("auxiliar.txt");	
+}
+
+void acceptFriend(Graph network) {
 
 	FILE *fp = openUserFile(loggedIn,"r+");	//this file contains the name of the person who sent a friend invite to the file name person
 
 	char c = fgetc(fp);
 	if (c == '#') {
 		while (c != '$' && !feof(fp)) c = fgetc(fp);
-		//TODO: find the request
 		if (feof(fp)) {
-			printf("You don't have friend requests\n\t");
+			printf("\n\tYou don't have friend requests\n\t");
+			return;
 		}
 	}
-
-	else if (c == '$') {
-		//TODO: find the request
-	}
-
-	//TODO: procces the request
-
-
+	int number_requests = showMyFriendsRequest(fp, network);
+	int number_accept;
+	printf("\n\tWhat's the number of the person that you want to accept?\n\t)> ");
+	scanf("%d", &number_accept);
+	while(number_accept <= 0 || number_accept > number_requests){
+		printf("\n\tInvalid option. Please type again\n\t>)");
+		scanf("%d", &number_accept);
+	}			
+	rewind(fp);
+	char name_accept[51];
+	int count_aux=1;
+	c = fgetc(fp);
+	if (c == '#') while (c != '$' && !feof(fp)) c = fgetc(fp);
+	if(c == '$'){
+		while(1){
+			c = fgetc(fp);
+			fscanf(fp, "%[^\n]", name_accept);
+			if(count_aux == number_accept)break;
+			count_aux++;
+			strcpy(name_accept, "");
+		}
+	}	
+	fclose(fp);
+	updateFile(network, getName(loggedIn), name_accept);
+	updateFile(network, name_accept, getName(loggedIn));
 }
 
 void removeFriendFromFile(User* userFile, Graph network,char target[51]) {
@@ -690,6 +785,7 @@ int main(int argc, char const *argv[]) {
                 break;
 			case 3:
 				acceptFriend(network);
+				break;
 			case 4:
 				removeFriend(network);
 				break;
