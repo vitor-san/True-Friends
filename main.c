@@ -962,7 +962,7 @@ int main(int argc, char const *argv[]) {
                 listProfiles(network);
                 break;
             default:
-                printf("\n\tInvalid option!\n");
+                printf("\n\tInvalid option!");
         }
     }
 
