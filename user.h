@@ -3,11 +3,17 @@
 
 typedef struct user_ User;
 
-User *newUser();
-void removeUser(User *u);
-void printUser(User *u);
-void printUserToFile(User *u, FILE *fp);
+User *newUser(); //criates a new user
+void removeUser(User *u); //remove user 
+void printUser(User *u); //prints all features of user
+void printUserToFile(User *u, FILE *fp);//writes all features of user in the file
+int compareName(void* a, void* b); //function to compare two names
+int getUserSize(User *u);//get size of struct user
 
+/*
+ * Functions getters and setters of the all features
+ * 
+ */ 
 void setName(User *u, char *name);
 char *getName(User *u);
 
@@ -38,7 +44,5 @@ char *getFavoriteFood(User *u);
 void setInterest(User *u, char *interest);
 char *getInterest(User *u);
 
-int compareName(void* a, void* b);
-int getUserSize(User *u);
 
 #endif
