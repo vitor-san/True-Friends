@@ -9,7 +9,9 @@
 
 User *loggedIn;
 int myId;
-
+/*
+ * This function return the number of people in the file
+ */ 
 int count_people(FILE *fp) {
 	int cnt = 0, flag = 1;
 	char c;
@@ -25,7 +27,9 @@ int count_people(FILE *fp) {
 	}
 	return cnt/10;
 }
-
+/*
+ * Auxiliary function of read_users
+ */ 
 void read_item(FILE *fp, User **users_list, int pos, int type) {
 	char c;
 	char input[50];
@@ -67,7 +71,9 @@ void read_item(FILE *fp, User **users_list, int pos, int type) {
 			break;
 	}
 }
-
+/*
+ * This function read all features the users and store in the array 
+ */ 
 void read_users(FILE *fp, User **users_list, int number_users) {
 	int i = 0, age;
 	for(int i = 0; i < number_users; i++){
@@ -263,7 +269,9 @@ void buildNetwork(Graph network) {
 		fclose(userFile);
 	}
 }
-
+/*
+ * This function show all friendship requests
+ */ 
 int showMyFriendRequests(FILE *fp, Graph network, int showIndex) {
 	printf("\n\tFriendship requests:\n\t");
 	int count = 0;
@@ -519,7 +527,10 @@ void updateFile(Graph network, char *user_change, char *name_accept){
 	fclose(fp);
 	remove("auxiliary.txt");
 }
-
+/*
+ * This function accepts some of the friendship requests,
+ * if not exist returns to menu.
+ */ 
 void acceptFriend(Graph network) {
 
 	FILE *fp = openUserFile(loggedIn,"r+");	//this file contains the name of people who sent a friendship invite to the logged in person
