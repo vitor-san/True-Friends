@@ -8,6 +8,8 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
+#include "tuple.h"
+
 typedef struct graph GRAPH;
 typedef GRAPH* Graph;
 
@@ -188,6 +190,9 @@ int vertexDegree(Graph g, int x);
       void *val -> new vertex value.
 */
 void setVertexData(Graph g, int x, void *val);
+
+
+Tuple* kruskal(Graph g);
 
 /*
   Prints the graph.

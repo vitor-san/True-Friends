@@ -1,5 +1,5 @@
 all:
-	gcc -o true_friends main.c user.c graph.c -g
+	gcc -o true_friends main.c user.c graph.c tuple.c -g
 run:
 	./true_friends
 debug:

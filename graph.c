@@ -408,6 +408,66 @@ int vertexDegree(Graph g, int x) {
     return g->list[x].numConnec;
 }
 
+
+int find(int x,int* pai) {
+    if (pai[x] == x) return x;
+    pai[x] = find(pai[x],pai);
+}
+
+void join(int a, int b,int* pai) {
+
+    a = find(a,pai);
+    b = find(b,pai);
+
+    pai[b] = a;
+
+}
+
+Tuple* kruskal(Graph g) {
+
+    Tuple* allEdges = malloc(sizeof(Tuple) * g->numEd);
+
+    int pos = 0;
+
+    for (int i = 0; i < g->numVt; i++) {
+        int j = 0;
+        int* neig = neighbors(g,i);
+        while(neig[j] != 0) {
+                Set(&(allEdges[pos]),i,neig[j],getEdgeCost(g,i,neig[j]));
+                pos++;
+                j++;
+        }
+
+        if(neig != NULL) free(neig);
+    }
+
+    qsort(allEdges,g->numEd,sizeof(Tuple),compTuple);
+
+    int* pai = malloc(g->numVt*sizeof(int));
+    for (int i = 0; i < g->numVt; i++) pai[i] = i;
+
+    Tuple* mst = malloc(g->numVt*sizeof(Tuple));
+    pos = 0;
+
+    for (int i = 0; i < g->numEd; i++) {
+
+        if(find(First(allEdges[i]),pai) != find(Second(allEdges[i]),pai)) {
+            join(First(allEdges[i]),Second(allEdges[i]),pai);
+            Set(&(mst[pos]),First(allEdges[i]),Second(allEdges[i]),Third(allEdges[i]));
+            pos++;
+        }
+
+    }
+
+    free(allEdges);
+    free(pai);
+
+    return mst;
+
+}
+
+
+
 void setVertexData(Graph g, int x, void *val) {
     if (g == NULL || g->list == NULL) {
         fprintf(stderr, "Invalid graph.\n");
