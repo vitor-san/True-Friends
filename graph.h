@@ -192,7 +192,7 @@ int vertexDegree(Graph g, int x);
 void setVertexData(Graph g, int x, void *val);
 
 
-Tuple* kruskal(Graph g);
+Tuple* kruskal(Graph g,int* size);
 
 /*
   Prints the graph.

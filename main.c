@@ -910,9 +910,10 @@ void welcomeUser(Graph network, FILE *fp) {
 }
 
 void friendTree(Graph g) {
-	Tuple* mst = kruskal(g);
+	int size;
+	Tuple* mst = kruskal(g,&size);
 
-	for (int i = 0; i < numVertices(g); i++) {
+	for (int i = 0; i < size; i++) {
 		printf("(%d)->(%d) %d\n",First(mst[i]),Second(mst[i]),Third(mst[i]));
 	}
 

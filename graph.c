@@ -423,7 +423,7 @@ void join(int a, int b,int* pai) {
 
 }
 
-Tuple* kruskal(Graph g) {
+Tuple* kruskal(Graph g,int* size) {
 
     Tuple* allEdges = malloc(sizeof(Tuple) * g->numEd);
 
@@ -461,6 +461,8 @@ Tuple* kruskal(Graph g) {
 
     free(allEdges);
     free(pai);
+
+    *size = pos;
 
     return mst;
 
