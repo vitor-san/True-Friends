@@ -570,7 +570,7 @@ void acceptFriend(Graph network) {
 	int pos = searchVertexReturnPos(network, compareName, name_accept);
 	double sim = friendSimilarity(loggedIn, new_friend);
 	if (addEdge(network, myId, pos)) {
-		setEdgeCost(network, myId, pos, sim);
+		setEdgeCost(network, myId, pos, 1/sim);
 	}
 	fclose(fp);
 	//updating the two files

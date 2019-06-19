@@ -427,8 +427,10 @@ Tuple* kruskal(Graph g,int* size) {
 
     Tuple* allEdges = malloc(sizeof(Tuple) * g->numEd);
 
+    //the postion of the allEdges array
     int pos = 0;
 
+    //run through all edges
     for (int i = 0; i < g->numVt; i++) {
         int j = 0;
         int* neig = neighbors(g,i);
@@ -443,14 +445,16 @@ Tuple* kruskal(Graph g,int* size) {
 
     qsort(allEdges,g->numEd,sizeof(Tuple),compTuple);
 
+    //vector of parents for the union find
     int* pai = malloc(g->numVt*sizeof(int));
+    //inicialize the parents
     for (int i = 0; i < g->numVt; i++) pai[i] = i;
 
     Tuple* mst = malloc(g->numVt*sizeof(Tuple));
     pos = 0;
 
     for (int i = 0; i < g->numEd; i++) {
-
+        //if the vertices aren't in the same set
         if(find(First(allEdges[i]),pai) != find(Second(allEdges[i]),pai)) {
             join(First(allEdges[i]),Second(allEdges[i]),pai);
             Set(&(mst[pos]),First(allEdges[i]),Second(allEdges[i]),Third(allEdges[i]));

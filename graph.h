@@ -191,7 +191,15 @@ int vertexDegree(Graph g, int x);
 */
 void setVertexData(Graph g, int x, void *val);
 
+/*
+    Kruskal algorithym to find the mst(minimum spanning tree)
+    @Parameters:
+        Graph g -> graph to be considered
+        int* size -> size of the tree
+    @Return:
+        the mst 
 
+*/
 Tuple* kruskal(Graph g,int* size);
 
 /*
