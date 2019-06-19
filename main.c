@@ -570,7 +570,7 @@ void acceptFriend(Graph network) {
 	int pos = searchVertexReturnPos(network, compareName, name_accept);
 	double sim = friendSimilarity(loggedIn, new_friend);
 	if (addEdge(network, myId, pos)) {
-		setEdgeCost(network, myId, pos, 1/sim);
+		setEdgeCost(network, myId, pos, 1000/sim);
 	}
 	fclose(fp);
 	//updating the two files
@@ -909,12 +909,25 @@ void welcomeUser(Graph network, FILE *fp) {
 	else inputError();
 }
 
+/*
+ * Teste
+ */
+void printEdges(Graph g, int x, int y, int z){
+	
+	User *u = getVertexData(g, x);
+	User *v = getVertexData(g, y);
+	printf("%s - > %s (%d)", getName(u),  getName(v), z);	
+}
+
+/*
+ * Teste
+ */ 
 void friendTree(Graph g) {
 	int size;
 	Tuple* mst = kruskal(g,&size);
 
 	for (int i = 0; i < size; i++) {
-		printf("(%d)->(%d) %d\n",First(mst[i]),Second(mst[i]),Third(mst[i]));
+		printEdges(g, First(mst[i]),Second(mst[i]),Third(mst[i]));
 	}
 
 	free(mst);
