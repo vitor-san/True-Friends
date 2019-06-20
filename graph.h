@@ -198,7 +198,6 @@ void setVertexData(Graph g, int x, void *val);
         int* size -> size of the tree
     @Return:
         the mst 
-
 */
 Tuple* kruskal(Graph g,int* size);
 

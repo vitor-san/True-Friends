@@ -4,8 +4,8 @@
 #include "graph.h"
 #include "user.h"
 
-#define FRIEND_THRESHOLD 0.45
-#define MATCH_THRESHOLD 0.65
+#define FRIEND_THRESHOLD 2.22
+#define MATCH_THRESHOLD 1.54
 
 User *loggedIn;
 int myId;
@@ -289,7 +289,7 @@ int showMyFriendRequests(FILE *fp, Graph network, int showIndex) {
 				double sim = friendSimilarity(loggedIn, friend);
 				if (showIndex) printf("[%d] ", ++count);
 				printf("%s ", name);
-				if (sim < FRIEND_THRESHOLD) printf("- might not be a true friendship\n\t");
+				if (sim < 1/FRIEND_THRESHOLD) printf("- might not be a true friendship\n\t");
 				else printf("- probably a true friendship!\n\t");
 				k = 0;
 			}
@@ -323,7 +323,7 @@ void showMyProfile(Graph network) {
 				User *friend = searchVertexReturnData(network, compareName, name);
 				double sim = friendSimilarity(loggedIn, friend);
 				printf("%s ", name);
-				if (sim < FRIEND_THRESHOLD) printf("- might not be a true friendship\n\t");
+				if (sim < 1/FRIEND_THRESHOLD) printf("- might not be a true friendship\n\t");
 				else printf("\n\t");
 				k = 0;
 			}
@@ -395,7 +395,7 @@ void addFriend(Graph network) {
 		return;
 	}
 
-	if (friendSimilarity(loggedIn, found) < FRIEND_THRESHOLD) {
+	if (friendSimilarity(loggedIn, found) < 1/FRIEND_THRESHOLD) {
 		printf("\n\tAre you sure? This person might not be a true friend... (Y/N)\n\t)> ");
 		char opt;
 		scanf("%c", &opt);
@@ -658,7 +658,7 @@ void removeFriend(Graph network) {
 */
 void findFriend(Graph network) {
 	User *possFriend = NULL;
-	double baseSim = FRIEND_THRESHOLD;
+	double baseSim = 1/FRIEND_THRESHOLD;
 
 	for (int i = 0; i < numVertices(network); i++) {
 		if (!isAdjacent(network, myId, i) && i != myId) {
@@ -686,7 +686,7 @@ void findFriend(Graph network) {
 */
 void findMatch(Graph network) {
 	User *match = NULL;
-	double baseSim = MATCH_THRESHOLD;
+	double baseSim = 1/MATCH_THRESHOLD;
 	char *myInterest = getInterest(loggedIn);
 
 	if (strcmp(myInterest, "None") == 0) {
@@ -913,15 +913,15 @@ void welcomeUser(Graph network, FILE *fp) {
  * Teste
  */
 void printEdges(Graph g, int x, int y, int z){
-	
+
 	User *u = getVertexData(g, x);
 	User *v = getVertexData(g, y);
-	printf("%s - > %s (%d)", getName(u),  getName(v), z);	
+	printf("%s - > %s (%d)", getName(u),  getName(v), z);
 }
 
 /*
  * Teste
- */ 
+ */
 void friendTree(Graph g) {
 	int size;
 	Tuple* mst = kruskal(g,&size);
