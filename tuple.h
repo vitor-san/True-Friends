@@ -2,13 +2,14 @@
 #define TUPLE_H
 
 typedef struct tuple {
-    int a,b,c;
+    int a, b;
+    double c;
 } Tuple;
 
 int First(Tuple);
 int Second(Tuple);
-int Third(Tuple);
-void Set(Tuple*,int,int,int);
-int compTuple(const void*,const void*);
+double Third(Tuple);
+void Set(Tuple*, int, int, double);
+int compTuple(const void*, const void*);
 
 #endif

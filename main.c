@@ -6,9 +6,11 @@
 
 #define FRIEND_THRESHOLD 2.22
 #define MATCH_THRESHOLD 1.54
+#define INFINITY 9007199254740992	//max double value
 
 User *loggedIn;
 int myId;
+
 /*
  * This function return the number of people in the file
  */
@@ -27,6 +29,7 @@ int count_people(FILE *fp) {
 	}
 	return cnt/10;
 }
+
 /*
  * Auxiliary function of read_users
  */
@@ -71,6 +74,7 @@ void read_item(FILE *fp, User **users_list, int pos, int type) {
 			break;
 	}
 }
+
 /*
  * This function read all features the users and store in the array
  */
@@ -256,8 +260,9 @@ void buildNetwork(Graph network) {
 					int pos = searchVertexReturnPos(network, compareName, name);
 
 					double sim = friendSimilarity(cur, friend);
-					if (addEdge(network, i, pos)) {
-						setEdgeCost(network, i, pos, sim);
+					if (addEdge(network, i, pos)) {	//se foi possivel adicionar a aresta entre os dois
+						if (sim == 0) setEdgeCost(network, i, pos, INFINITY);
+						else setEdgeCost(network, i, pos, 1/sim);
 					}
 					k = 0;
 				}
@@ -269,6 +274,7 @@ void buildNetwork(Graph network) {
 		fclose(userFile);
 	}
 }
+
 /*
  * This function show all friendship requests
  */
@@ -527,6 +533,7 @@ void updateFile(Graph network, char *user_change, char *name_accept){
 	fclose(fp);
 	remove("auxiliary.txt");
 }
+
 /*
  * This function accepts some of the friendship requests,
  * if not exist returns to menu.
@@ -569,8 +576,9 @@ void acceptFriend(Graph network) {
 	User *new_friend = searchVertexReturnData(network, compareName, name_accept);
 	int pos = searchVertexReturnPos(network, compareName, name_accept);
 	double sim = friendSimilarity(loggedIn, new_friend);
-	if (addEdge(network, myId, pos)) {
-		setEdgeCost(network, myId, pos, 1000/sim);
+	if (addEdge(network, myId, pos)) {	//se foi possivel adicionar a aresta entre os dois
+		if (sim == 0) setEdgeCost(network, myId, pos, INFINITY);
+		else setEdgeCost(network, myId, pos, 1/sim);
 	}
 	fclose(fp);
 	//updating the two files
@@ -621,7 +629,6 @@ void removeFriendFromFile(User* userFile, Graph network,char target[51]) {
 	fclose(fp);
 
 }
-
 
 void removeFriend(Graph network) {
 
@@ -760,6 +767,33 @@ void listProfiles(Graph network) {
 		printProfile(cur);
 		printf("\t==================================================");
 	}
+}
+
+/*
+ * Prints on screen the edge from user x to user y,
+ * including their similarity.
+ */
+void printEdge(Graph g, int x, int y, double z) {
+	User *u = getVertexData(g, x);
+	User *v = getVertexData(g, y);
+
+	printf("\n\t%s & %s (%.0lf%% of similarity)\n", getName(u),  getName(v), 100/z);
+}
+
+/*
+ * Prints on screen all the network truer friendships, i.e.
+ * the ones with greater similarity, using an MST for such
+ * purpose.
+ */
+void truerFriendships(Graph g) {
+	int size;
+	Tuple* mst = kruskal(g, &size);
+
+	for (int i = 0; i < size; i++) {
+		if (Third(mst[i]) <= FRIEND_THRESHOLD) printEdge(g, First(mst[i]), Second(mst[i]), Third(mst[i]));
+	}
+
+	free(mst);
 }
 
 void printLogo() {
@@ -909,31 +943,6 @@ void welcomeUser(Graph network, FILE *fp) {
 	else inputError();
 }
 
-/*
- * Teste
- */
-void printEdges(Graph g, int x, int y, int z){
-
-	User *u = getVertexData(g, x);
-	User *v = getVertexData(g, y);
-	printf("%s - > %s (%d)", getName(u),  getName(v), z);
-}
-
-/*
- * Teste
- */
-void friendTree(Graph g) {
-	int size;
-	Tuple* mst = kruskal(g,&size);
-
-	for (int i = 0; i < size; i++) {
-		printEdges(g, First(mst[i]),Second(mst[i]),Third(mst[i]));
-	}
-
-	free(mst);
-}
-
-
 void printMenu() {
 
 	printf("\n\t_______________________________________\n\n");
@@ -945,6 +954,7 @@ void printMenu() {
 	printf("\t[5] find a possible friend\n\t");
 	printf("\t[6] find the perfect match\n\t");
     printf("\t[7] list all profiles\n\t");
+	printf("\t[8] show the truest friendships\n\t");
     printf("\t[0] exit\n\t");
 	printf(")> ");
 
@@ -998,7 +1008,8 @@ int main(int argc, char const *argv[]) {
                 listProfiles(network);
                 break;
 			case 8:
-				friendTree(network);
+				truerFriendships(network);
+				break;
             default:
                 printf("\n\tInvalid option!");
         }

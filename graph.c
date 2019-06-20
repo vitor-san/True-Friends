@@ -128,7 +128,7 @@ int addEdge(Graph g, int x, int y) {
         g->list[x].end = n;
     }
 
-    int scndRtrn = 0;   // second return (in case it's a digraph)
+    int scndRtrn = 1;   // second return (in case it's not directed)
     if (!g->isDigraph && !isAdjacent(g, y, x)) scndRtrn = addEdge(g, y, x);
 
     g->list[x].numConnec++;
@@ -409,41 +409,39 @@ int vertexDegree(Graph g, int x) {
 }
 
 
-int find(int x,int* pai) {
+int find(int x, int* pai) {
     if (pai[x] == x) return x;
-    pai[x] = find(pai[x],pai);
+    pai[x] = find(pai[x], pai);
 }
 
-void join(int a, int b,int* pai) {
-
-    a = find(a,pai);
-    b = find(b,pai);
-
+void join(int a, int b, int* pai) {
+    a = find(a, pai);
+    b = find(b, pai);
     pai[b] = a;
-
 }
 
-Tuple* kruskal(Graph g,int* size) {
+Tuple* kruskal(Graph g, int* size) {
 
     Tuple* allEdges = malloc(sizeof(Tuple) * g->numEd);
 
-    //the postion of the allEdges array
+    //the position of the allEdges array
     int pos = 0;
 
     //run through all edges
     for (int i = 0; i < g->numVt; i++) {
         int j = 0;
-        int* neig = neighbors(g,i);
+        int* neig = neighbors(g, i);
         while(neig[j] != 0) {
-                Set(&(allEdges[pos]),i,neig[j],getEdgeCost(g,i,neig[j]));
-                pos++;
-                j++;
+            //printf("%.3lf ", getEdgeCost(g, i, neig[j]));
+            Set(&(allEdges[pos]), i, neig[j], getEdgeCost(g, i, neig[j]));
+            pos++;
+            j++;
         }
 
         if(neig != NULL) free(neig);
     }
 
-    qsort(allEdges,g->numEd,sizeof(Tuple),compTuple);
+    qsort(allEdges, g->numEd, sizeof(Tuple), compTuple);
 
     //vector of parents for the union find
     int* pai = malloc(g->numVt*sizeof(int));
@@ -455,9 +453,9 @@ Tuple* kruskal(Graph g,int* size) {
 
     for (int i = 0; i < g->numEd; i++) {
         //if the vertices aren't in the same set
-        if(find(First(allEdges[i]),pai) != find(Second(allEdges[i]),pai)) {
-            join(First(allEdges[i]),Second(allEdges[i]),pai);
-            Set(&(mst[pos]),First(allEdges[i]),Second(allEdges[i]),Third(allEdges[i]));
+        if (find(First(allEdges[i]), pai) != find(Second(allEdges[i]), pai)) {
+            join(First(allEdges[i]), Second(allEdges[i]), pai);
+            Set(&(mst[pos]), First(allEdges[i]), Second(allEdges[i]), Third(allEdges[i]));
             pos++;
         }
 
@@ -469,9 +467,7 @@ Tuple* kruskal(Graph g,int* size) {
     *size = pos;
 
     return mst;
-
 }
-
 
 
 void setVertexData(Graph g, int x, void *val) {
